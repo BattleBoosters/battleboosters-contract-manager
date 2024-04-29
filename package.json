@@ -2,15 +2,26 @@
   "name": "contract-manager",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "node_modules/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "run": "node dist/index.js",
+    "admin": "npm run build && npm run run"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",
     "@metaplex-foundation/mpl-token-metadata": "^3.2.1",
-    "@switchboard-xyz/on-demand": "^1.0.26"
+    "@solana/web3.js": "^1.91.7",
+    "@switchboard-xyz/on-demand": "^1.0.49",
+    "@types/node": "^20.12.7",
+    "dotenv": "^16.4.5"
+  },
+  "type": "module",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }
