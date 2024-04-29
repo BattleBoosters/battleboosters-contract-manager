@@ -5,15 +5,23 @@ import anchor from '@coral-xyz/anchor';
 import {Connection} from "@solana/web3.js";
 import fs from "fs";
 const {BN} = anchor;
+import { Keypair } from '@solana/web3.js';
+
+
 
 
 async function update_event(){
+    // @ts-ignore
+    const keypairJSON = fs.readFileSync(process.env.WALLET, 'utf-8');
+    const keypairData = JSON.parse(keypairJSON);
+    const keypair = Keypair.fromSecretKey(Uint8Array.from(keypairData));
+    const wallet = new anchor.Wallet(keypair);
     // Create a connection to the Solana blockchain
     // @ts-ignore
     const connection =  new Connection(process.env.PRIVATE_SOLANA_NETWORK_URL, 'processed');
     // Set the provider with only the connection
     // @ts-ignore
-    const provider = new anchor.AnchorProvider(connection, null, {'preflightCommitment': 'processed'});
+    const provider = new anchor.AnchorProvider(connection, wallet, {'preflightCommitment': 'processed'});
     anchor.setProvider(provider);
 
     const idlJSON = fs.readFileSync(process.cwd() + '/src/battleboosters.json', 'utf-8');
