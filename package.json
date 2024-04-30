@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "run": "node dist/index.js",
-    "admin": "npm run build && npm run run"
+    "start": "npm run build && npm run run"
   },
   "author": "",
   "license": "ISC",
