@@ -1,7 +1,3 @@
-// Load environment variables (assuming you have a .env file)
-import dotenv from 'dotenv';
-dotenv.config();
-
 import * as anchor from '@coral-xyz/anchor';
 import { Connection, Keypair } from '@solana/web3.js';
 import fs from 'fs';
@@ -27,7 +23,7 @@ export function getProgram(wallet: anchor.Wallet, programId: anchor.web3.PublicK
     anchor.setProvider(provider);
 
     // Load the program's IDL
-    const idlJSON = fs.readFileSync(process.cwd() + '/src/battleboosters.json', 'utf-8');
+    const idlJSON = fs.readFileSync('../src/battleboosters.json', 'utf-8');
     const idl = JSON.parse(idlJSON);
 
     return new anchor.Program(idl, programId, provider);

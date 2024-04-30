@@ -1,49 +1,36 @@
 import dotenv from 'dotenv';
-dotenv.config();
-import { Battleboosters } from './battleboosters';
-import anchor from '@coral-xyz/anchor';
-import {Connection} from "@solana/web3.js";
-import fs from "fs";
-const {BN} = anchor;
-import { Keypair } from '@solana/web3.js';
-import {getProgram, loadWallet, initAccounts} from "./utils/connection.js";
+dotenv.config({ path: '../.env' });
+import {program} from "commander"
+import { start } from "./utils/start.js"
 
-async function update_event(){
-    const wallet = loadWallet();
-    const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+program
+    .command('start')
+    .description('Start the program')
+    .action(() => {
 
-    const {
-        metadata_pubkey,
-        bank_pda,
-        bank_bump,
-        program_pda,
-        program_bump,
-        rarity_pda,
-        rarity_bump,
-        mint_authority_account,
-        authority_bump,
-    } = initAccounts(program);
+        // Your existing start() function logic here
+        start().then(() => {
+            console.log('Program started successfully.');
+        }).catch(error => {
+            console.error('Error starting program:', error);
+        });
+    });
 
-    const event_id = 1;
-    const new_time_start = 1813535498;
-    const new_time_end = 1813623964;
+program
+    .command('create-event')
+    .description('Create a new event')
+    .argument('<event_id>', 'ID of the event')
+    .argument('<start_time>', 'Start time of the event')
+    .argument('<end_time>', 'End time of the event')
+    .action((eventId: any, startTime: any, endTime: any) => {
+        // ... Implement your create-event logic here
+        console.log('Creating event with ID:', eventId);
+        // ... Use startTime and endTime as needed
+    });
 
-    const [event_account_one, event_account_one_bump] =
-        anchor.web3.PublicKey.findProgramAddressSync(
-            [
-                Buffer.from('BattleBoosters'),
-                Buffer.from('event'),
-                new BN(event_id).toBuffer('le', 8),
-            ],
-            program.programId
-        );
 
-    try {
-        console.log("ok")
-    } catch (e) {
-        console.log(e)
-    }
 
-}
-update_event()
+program.parse(process.argv);
+
+
+
