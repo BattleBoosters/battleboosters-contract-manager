@@ -1,0 +1,26 @@
+[
+  {
+    "startRank": 1,
+    "endRank": 1,
+    "prizeAmount": 100,
+    "fighterAmount": 1,
+    "boosterAmount": 3,
+    "championsPassAmount": 1
+  },
+  {
+    "startRank": 2,
+    "endRank": 2,
+    "prizeAmount": 10,
+    "fighterAmount": 1,
+    "boosterAmount": 3,
+    "championsPassAmount": 1
+  },
+  {
+    "startRank": 3,
+    "endRank": 3,
+    "prizeAmount": 10,
+    "fighterAmount": 1,
+    "boosterAmount": 3,
+    "championsPassAmount": 1
+  }
+]
