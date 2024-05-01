@@ -75,8 +75,6 @@ program
             );
         }
 
-
-
         const { tx } = await createEvent(
             startTime,
             endTime,
@@ -142,8 +140,6 @@ program
                 typeof obj.championsPassAmount === 'number'
             );
         }
-
-
 
         const { tx } = await updateEvent(
             eventAccount,

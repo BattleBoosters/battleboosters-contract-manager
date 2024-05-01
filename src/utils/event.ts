@@ -63,6 +63,7 @@ const updateEvent = async (event_account: string, time_start: number, time_end: 
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
     const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
+        admin_account,
         program_pda,
     } = initAccounts(program);
 
@@ -87,12 +88,12 @@ const updateEvent = async (event_account: string, time_start: number, time_end: 
             updated_rank_rewards
         )
         .accounts({
-            creator: wallet.publicKey,
+            creator: admin_account.publicKey,
             program: program_pda,
             event: event_account_to_pubkey,
             systemProgram: anchor.web3.SystemProgram.programId,
         })
-        .signers([])
+        .signers([admin_account])
         .rpc();
 
     return {

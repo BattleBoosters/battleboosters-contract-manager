@@ -57,7 +57,13 @@ export function initAccounts (program: anchor.Program<Battleboosters>) {
             program.programId
         );
 
+
+    const admin_account = anchor.web3.Keypair.fromSecretKey(
+        // @ts-ignore
+        new Uint8Array(process.env.ADMIN_ACCOUNT)
+    );
     return {
+        admin_account,
         metadata_pubkey,
         bank_pda,
         bank_bump,
