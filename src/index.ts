@@ -5,6 +5,7 @@ import { start } from "./utils/start.js"
 import {createEvent, updateEvent} from "./utils/event.js"
 import fs from "fs";
 import {TournamentType, RankReward} from "./interfaces/interfaces";
+import {createFightCard} from "./utils/fightCard.js";
 
 program
     .command('start')
@@ -75,14 +76,14 @@ program
             );
         }
 
-        const { tx } = await createEvent(
+        await createEvent(
             startTime,
             endTime,
             tournamentType,
             rankRewards
         );
 
-        console.log('Event created: ',tx);
+
     });
 
 program
@@ -141,15 +142,19 @@ program
             );
         }
 
-        const { tx } = await updateEvent(
+        await updateEvent(
             eventAccount,
             startTime,
             endTime,
             tournamentType,
             rankRewards
         );
-        console.log('Event updated: ', eventAccount + " tx "+ tx);
+
     });
 
+program
+    .command('create-fight-card').action(async () =>{
+        await createFightCard("")
+})
 
 program.parse(process.argv);
