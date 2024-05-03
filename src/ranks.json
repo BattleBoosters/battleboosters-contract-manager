@@ -2,7 +2,7 @@
   {
     "startRank": 1,
     "endRank": 1,
-    "prizeAmount": 100,
+    "prizeAmount": 1000,
     "fighterAmount": 1,
     "boosterAmount": 3,
     "championsPassAmount": 1
@@ -10,7 +10,7 @@
   {
     "startRank": 2,
     "endRank": 2,
-    "prizeAmount": 10,
+    "prizeAmount": 500,
     "fighterAmount": 1,
     "boosterAmount": 3,
     "championsPassAmount": 1
@@ -18,9 +18,33 @@
   {
     "startRank": 3,
     "endRank": 3,
-    "prizeAmount": 10,
+    "prizeAmount": 200,
     "fighterAmount": 1,
     "boosterAmount": 3,
     "championsPassAmount": 1
+  },
+  {
+    "startRank": 4,
+    "endRank": 4,
+    "prizeAmount": 100,
+    "fighterAmount": 1,
+    "boosterAmount": 3,
+    "championsPassAmount": 1
+  },
+  {
+    "startRank": 5,
+    "endRank": 10,
+    "prizeAmount": 10,
+    "fighterAmount": 1,
+    "boosterAmount": 2,
+    "championsPassAmount": 1
+  },
+  {
+    "startRank": 11,
+    "endRank": null,
+    "prizeAmount": 0,
+    "fighterAmount": 0,
+    "boosterAmount": 2,
+    "championsPassAmount": 0
   }
 ]
