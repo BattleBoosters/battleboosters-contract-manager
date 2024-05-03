@@ -57,11 +57,12 @@ export function initAccounts (program: anchor.Program<Battleboosters>) {
             program.programId
         );
 
-
+    // @ts-ignore
+    const adminAccount = JSON.parse(process.env.ADMIN_ACCOUNT);
     const admin_account = anchor.web3.Keypair.fromSecretKey(
-        // @ts-ignore
-        new Uint8Array(process.env.ADMIN_ACCOUNT)
+        new Uint8Array(adminAccount)
     );
+
     return {
         admin_account,
         metadata_pubkey,

@@ -37,7 +37,7 @@ const createEvent = async (time_start: number, time_end: number, tournament_type
             // Check if an event with the same title and dateStart already exists
             const existingEvent = await Event.findOne({
                 title: nextEvent.label,
-                dateStart: nextEvent.solanaTimestamp
+                dateStart: Math.floor(new Date(nextEvent.startDate).getTime() / 1000)
             });
             // Get the count of existing events (equivalent to the current maximum gameWeek)
             const eventCount = await Event.countDocuments();
