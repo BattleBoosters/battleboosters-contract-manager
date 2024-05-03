@@ -84,13 +84,8 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
                 });
 
-                // const key = "mainCard" in eventAccountData.tournamentType ? "Main Card" :
-                //     "prelims" in eventAccountData.tournamentType ? "Prelims" :
-                //         "earlyPrelims" in eventAccountData.tournamentType ? "Early Prelims" : null;
-
                 // Get program data and initialize event nonce
                 const programData = await program.account.programData.fetch(program_pda);
-
                 let key = null
                 if ( "mainCard" in tournament_type){
                     key = "Main Card"
@@ -102,7 +97,6 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
                 if (key) {
 
-                    console.log(key)
                     // Generate event PDA with incremented nonce
                     const [event_pda, event_bump] = anchor.web3.PublicKey.findProgramAddressSync(
                         [
@@ -112,8 +106,6 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                         ],
                         program.programId
                     );
-                    console.log("rank_rewards")
-                    console.log(rank_rewards)
                     let event = {
                         pubkey: event_pda.toString(),
                         type: key,
@@ -144,8 +136,6 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                         tx.add(event_instruction)
 
                         let fightCardNonce = 0
-
-
                         // @ts-ignore
                         for (const competitions of fightGroupings[key]) {
 
@@ -159,11 +149,6 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                                     ],
                                     program.programId
                                 );
-
-
-                            console.log(admin_account.publicKey.toString())
-                            console.log(fightCardNonce)
-                            console.log(fight_card_pda.toString())
 
                             let fightCard = {
                                 pubkey: fight_card_pda.toString(),
