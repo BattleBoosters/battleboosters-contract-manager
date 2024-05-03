@@ -113,7 +113,7 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                         ranks: rank_rewards
                     }
                     // @ts-ignore
-                    const eventExist = existingEvent.events.some(event => event.pubkey == event_pda.toString());
+                    const eventExist = existingEvent.events.some(event => event.type == key);
 
                     if (!eventExist){
 
