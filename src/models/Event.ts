@@ -5,10 +5,78 @@ const fightCardSchema = new mongoose.Schema({
     pubkey: String,
     category: String,
     fighterBlue: {
-        name: String
+        name: String,
+        stats: {
+            takedownsAttempted: Number,
+            takedownsLanded: Number,
+            takedownsSlams: Number,
+            sigClinchHeadStrikesAttempted: Number,
+            sigClinchHeadStrikesLanded: Number,
+            sigClinchBodyStrikesAttempted: Number,
+            sigClinchBodyStrikesLanded: Number,
+            sigClinchLegStrikesAttempted: Number,
+            sigClinchLegStrikesLanded: Number,
+            sigGroundHeadStrikesAttempted: Number,
+            sigGroundHeadStrikesLanded: Number,
+            sigGroundBodyStrikesAttempted: Number,
+            sigGroundBodyStrikesLanded: Number,
+            sigGroundLegStrikesAttempted: Number,
+            sigGroundLegStrikesLanded: Number,
+            strikingStrength: {
+                knockDowns: Number,
+                sigDistanceHeadStrikesAttempted: Number,
+                sigDistanceHeadStrikesLanded: Number,
+                sigDistanceBodyStrikesAttempted: Number,
+                sigDistanceBodyStrikesLanded: Number,
+                sigDistanceLegStrikesAttempted: Number,
+                sigDistanceLegStrikesLanded: Number,
+            },
+            grapplingStrength: {
+                submissions: Number,
+                secondsInControl: Number,
+                advanceToHalfGuard: Number,
+                advanceToSide: Number,
+                advanceToMount: Number,
+                advanceToBack: Number,
+            }
+        }
     },
     fighterRed: {
-        name: String
+        name: String,
+        stats: {
+            takedownsAttempted: Number,
+            takedownsLanded: Number,
+            takedownsSlams: Number,
+            sigClinchHeadStrikesAttempted: Number,
+            sigClinchHeadStrikesLanded: Number,
+            sigClinchBodyStrikesAttempted: Number,
+            sigClinchBodyStrikesLanded: Number,
+            sigClinchLegStrikesAttempted: Number,
+            sigClinchLegStrikesLanded: Number,
+            sigGroundHeadStrikesAttempted: Number,
+            sigGroundHeadStrikesLanded: Number,
+            sigGroundBodyStrikesAttempted: Number,
+            sigGroundBodyStrikesLanded: Number,
+            sigGroundLegStrikesAttempted: Number,
+            sigGroundLegStrikesLanded: Number,
+            strikingStrength: {
+                knockDowns: Number,
+                sigDistanceHeadStrikesAttempted: Number,
+                sigDistanceHeadStrikesLanded: Number,
+                sigDistanceBodyStrikesAttempted: Number,
+                sigDistanceBodyStrikesLanded: Number,
+                sigDistanceLegStrikesAttempted: Number,
+                sigDistanceLegStrikesLanded: Number,
+            },
+            grapplingStrength: {
+                submissions: Number,
+                secondsInControl: Number,
+                advanceToHalfGuard: Number,
+                advanceToSide: Number,
+                advanceToMount: Number,
+                advanceToBack: Number,
+            }
+        }
     },
     title: Boolean,
     winner: String

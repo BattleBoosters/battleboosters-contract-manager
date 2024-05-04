@@ -6,6 +6,7 @@ import {createCompetition, updateCompetition} from "./utils/competition.js"
 import fs from "fs";
 import {TournamentType, RankReward} from "./interfaces/interfaces";
 import {createEvent} from "./utils/event.js";
+import {insertResult} from "./utils/fightCard.js";
 
 program
     .command('start')
@@ -86,6 +87,14 @@ program
 
 
     });
+
+program
+    .command('insert-result')
+    .description('Insert fight card result')
+    .argument('<event_account>', 'account of the event')
+    .action(async (event_account) =>{
+        await insertResult(event_account)
+})
 
 // program
 //     .command('update-event')

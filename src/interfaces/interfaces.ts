@@ -26,5 +26,17 @@ interface RankReward {
     championsPassAmount: number;
 }
 
+
+interface Stat {
+    name: string;
+    displayName: string;
+    shortDisplayName: string;
+    description: string;
+    abbreviation: string;
+    value: number;
+    displayValue: string;
+}
+
+
 // Export the interfaces
-export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward };
+export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat };
