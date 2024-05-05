@@ -247,52 +247,6 @@ const insertResult = async (event_key: string) => {
             console.error(`Event key ${event_key} does not exist or are not found on the API`)
         }
 
-
-
-
-
-
-
-        //
-        // let { fight_card_account } = await updateFightCard(
-        //     provider,
-        //     program,
-        //     admin_account,
-        //     program_pda,
-        //     0,
-        //     false,
-        //     0,
-        //     fighterBlue,
-        //     fighterRed,
-        //     new BN(200),
-        //     { koTko: {} },
-        //     { fighterBlue: {} }
-        // );
-        //
-        // const fightCardData = {
-        //     eventPubkey: event_account,
-        //     eventNonceTracker: new BN(event_nonce),
-        //     titleFight: is_title_fight,
-        //     fighterBlue,
-        //     fighterRed,
-        //     fightDuration,
-        //     result,
-        //     winner,
-        // };
-        //
-        // const tx = await program.methods
-        //     .updateFightCard(fightCardData)
-        //     .accounts({
-        //         creator: admin_account.publicKey,
-        //         program: program_pda,
-        //         event: event_account,
-        //         fightCard: fight_card_account,
-        //         systemProgram: anchor.web3.SystemProgram.programId,
-        //     })
-        //     .signers([admin_account])
-        //     .rpc();
-
-
     }catch (e){
         console.log(e)
     }
