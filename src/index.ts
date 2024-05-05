@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
 import {program} from "commander"
-import { start } from "./utils/start.js"
-import {createCompetition, updateCompetition} from "./utils/competition.js"
+import { start } from "./commands/start.js"
+import {createCompetition, updateCompetition} from "./commands/competition.js"
 import fs from "fs";
 import {TournamentType, RankReward} from "./interfaces/interfaces";
-import {createEvent} from "./utils/event.js";
-import {insertResult} from "./utils/fightCard.js";
+import {createEvent} from "./commands/event.js";
+import {insertResult} from "./commands/fightCard.js";
 
 program
     .command('start')

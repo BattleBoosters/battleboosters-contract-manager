@@ -1,8 +1,8 @@
-import {getProgram, initAccounts, loadWallet} from "./connection.js";
+import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
 import anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
 import {RankReward, TournamentType} from "../interfaces/interfaces";
-import connectToDatabase from './mongodb.js';
+import connectToDatabase from '../utils/mongodb.js';
 import axios from "axios";
 const {BN} = anchor;
 import Event from '../models/Event.js';
