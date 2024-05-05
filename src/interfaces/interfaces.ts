@@ -37,6 +37,31 @@ interface Stat {
     displayValue: string;
 }
 
+interface FightStatus {
+    "$ref": string;
+    "clock": number;
+    "displayClock": string;
+    "period": number;
+    "type": {
+        "id": string;
+        "name": string;
+        "state": string;
+        "completed": boolean;
+        "description": string;
+        "detail": string;
+        "shortDetail": string;
+    },
+    "result": {
+        "id": number;
+        "name": string;
+        "displayName": string;
+        "shortDisplayName": string;
+    },
+    "featured": boolean;
+}
+
+
+
 
 // Export the interfaces
-export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat };
+export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat, FightStatus };

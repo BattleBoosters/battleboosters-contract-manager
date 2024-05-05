@@ -217,6 +217,7 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                         let tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
                         // Save to DB
                         await existingEvent.save()
+
                         console.info("Event successfully created, tx: ", tx_info)
                     }else {
                         console.error("The event already exist")
