@@ -7,6 +7,7 @@ import fs from "fs";
 import {TournamentType, RankReward} from "./interfaces/interfaces";
 import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
+import {pointsCalculator} from "./commands/pointsCalculator.js";
 
 program
     .command('start')
@@ -158,6 +159,15 @@ program
     .action(async (event_account) =>{
         await insertResult(event_account)
 })
+
+program
+    .command('determine-points')
+    .description('Determine players points')
+    .argument('<event_account>', "Event account to determine points")
+    .action(async (event_account) =>{
+        await pointsCalculator(event_account)
+    })
+
 
 // program
 //     .command('update-event')

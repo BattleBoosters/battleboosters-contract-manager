@@ -1,13 +1,13 @@
 import {RankReward, TournamentType} from "../interfaces/interfaces";
-import {getProgram, initAccounts, loadWallet} from "@utils/connection";
+import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
 import anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
-import connectToDatabase from "@utils/mongodb";
-import Event from "../models/Event";
+import connectToDatabase from "../utils/mongodb.js";
+import Event from "../models/Event.js";
 import {Transaction} from "@solana/web3.js";
 const { BN } = anchor
 
-const pointsCalculator = async (eventKey: string, newStartDate: number | undefined, newEndDate: number | undefined, tournament_type: TournamentType | undefined, rank_rewards: RankReward[]) => {
+const pointsCalculator = async (eventKey: string) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
     const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
@@ -23,11 +23,12 @@ const pointsCalculator = async (eventKey: string, newStartDate: number | undefin
 
         const event_account = new anchor.web3.PublicKey(eventKey);
         const event_account_data = await program.account.eventData.fetch(event_account);
-        event_account_data.rankNonce
+
         let tx = new Transaction()
 
         let fightCardPdas = []
-        for (let fightCard = 0; fightCard < event_account_data.fightCardNonce, fightCard++;){
+
+        for (let fightCard = 0; fightCard < event_account_data.fightCardNonce; fightCard++){
             const [fight_card_account, fight_card_bump] =
                 anchor.web3.PublicKey.findProgramAddressSync(
                     [
@@ -42,89 +43,91 @@ const pointsCalculator = async (eventKey: string, newStartDate: number | undefin
             fightCardPdas.push(fight_card_account)
         }
 
-        for (let rank = 0; rank < event_account_data.rankNonce.toNumber(), rank++;){
-            const [rank_pda, rank_pda_bump] =
-                anchor.web3.PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from('BattleBoosters'),
-                        Buffer.from('rank'),
-                        event_account.toBuffer(),
-                        Buffer.from(new BN(rank).toArray("le", 8))
-                        //admin_account.publicKey.toBuffer(),
-                    ],
+        // Collect all rank PDAs and fetch data concurrently
+        const rankFetchPromises = [];
+        for (let rank = 0; rank < event_account_data.rankNonce.toNumber(); rank++) {
+            const [rank_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+                [Buffer.from('BattleBoosters'), Buffer.from('rank'), event_account.toBuffer(), Buffer.from(new BN(rank).toArray("le", 8))],
+                program.programId
+            );
+            rankFetchPromises.push(program.account.rankData.fetch(rank_pda).then(rank_data => ({ rank_data, rank_pda })));
+        }
+
+        const ranksData = await Promise.all(rankFetchPromises);
+
+        await Promise.all(ranksData.map(async ({ rank_data, rank_pda }) => {
+            const rankPromises = fightCardPdas.map(async fightCardPda => {
+                const [fight_card_link_account] = anchor.web3.PublicKey.findProgramAddressSync(
+                    [Buffer.from('BattleBoosters'), Buffer.from('fightCard'), event_account.toBuffer(), fightCardPda.toBuffer(), rank_data.playerAccount.toBuffer()],
                     program.programId
                 );
+                const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account);
 
-            const rank_data = await program.account.rankData.fetch(rank_pda)
-
-
-            fightCardPdas.map(async fightCardPda => {
-
-                const [fight_card_link_account, fight_card_link_bump] =
-                    anchor.web3.PublicKey.findProgramAddressSync(
-                        [
-                            Buffer.from('BattleBoosters'),
-                            Buffer.from('fightCard'),
-                            event_account.toBuffer(),
-                            fightCardPda.toBuffer(),
-                            rank_data.playerAccount.toBuffer(),
-                            //admin_account.publicKey.toBuffer()
-                        ],
-                        program.programId
-                    );
-                const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account)
-
+                console.log(fight_card_link_data)
                 // @ts-ignore
-                let fighter_used_data = await program.account.fighterData.fetch(fight_card_link_data.fighterUsed)
+                const mintable_asset_data = await program.account.mintableGameAssetData.fetch(fight_card_link_data.fighterUsed)
+                console.log(mintable_asset_data)
+
+                let assetType =  mintable_asset_data.metadata.attributes.find(asset =>
+                    asset.traitType == "Fighter Type"
+                )?.value
 
                 const fighterTypeMap = {
                     boxing: { boxing: {} },
-                    muayThai: { muayThai: {} },
-                    taekwondo: {taekwondo: {}},
-                    karate: {karate: {}},
-                    judo: {judo: {}},
-                    wrestling: {wrestling: {}},
-                    brazilianJiuJitsu: {brazilianJiuJitsu: {}},
-                    sambo: {sambo: {}}
+                    muaythai: { muayThai: {} },
+                    taekwondo: { taekwondo: {} },
+                    karate: { karate: {} },
+                    judo: { judo: {} },
+                    wrestling: { wrestling: {} },
+                    brazilianjiujitsu: { brazilianJiuJitsu: {} },
+                    sambo: { sambo: {} }
                 };
 
+                const fighterTypes = [
+                    'boxing', 'muaythai', 'taekwondo', 'karate', 'judo',
+                    'wrestling', 'brazilianjiujitsu', 'sambo'
+                ];
 
-                const fighterType = fighterTypeMap[fighter_used_data.fighterType] || {};
-                const fighterIndex = Object.keys(fighterType)[0];
 
+                // Example fighter type
+                // @ts-ignore
+                const fighterTypeKey = assetType.toLowerCase(); // Ensure the key is in the correct case/format
 
+                // Get the object from the map
+                //@ts-ignore
+                const fighterTypeObject = fighterTypeMap[fighterTypeKey];
+                // Get the index from the array
+                const fighterIndex = fighterTypes.indexOf(fighterTypeKey);
                 const [fighter_pda] = anchor.web3.PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from('BattleBoosters'),
-                        Buffer.from('fighterBase'),
-                        Buffer.from([fighterIndex]),
-                    ],
+                    //@ts-ignore
+                    [Buffer.from('BattleBoosters'), Buffer.from('fighterBase'), Buffer.from([fighterIndex])],
                     program.programId
                 );
 
+                let determineRankInstruction = program.methods.determineRankingPoints(fighterTypeObject)
+                    .accounts({
+                        signer: wallet.publicKey,
+                        event: event_account,
+                        rank: rank_pda,
+                        playerAccount: rank_data.playerAccount,
+                        fightCard: fightCardPda,
+                        fightCardLink: fight_card_link_account,
+                        // @ts-ignore
+                        fighterAsset: fight_card_link_data.fighterUsed,
+                        // @ts-ignore
+                        fighterAssetLink: fight_card_link_data.fighterLinkUsed,
+                        pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
+                        shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
+                        fighterBase: fighter_pda,
+                    }).instruction();
 
-                let determineRankInstruction = await program.methods
-                    //@ts-ignore
-                .determineRankingPoints(fighter_type)
-                .accounts({
-                    signer: wallet.publicKey,
-                    event: event_account,
-                    rank: rank_pda,
-                    playerAccount: rank_data.playerAccount,
-                    fightCard: fightCardPda,
-                    fightCardLink: fight_card_link_account,
-                    // @ts-ignore
-                    fighterAsset: fight_card_link_data.fighterUsed,
-                    // @ts-ignore
-                    fighterAssetLink: fight_card_link_data.fighterLinkUsed,
-                    pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
-                    shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
-                    fighterBase: fighter_pda,
-                }).instruction();
+                // @ts-ignore
+                tx.add(determineRankInstruction);
+            });
+            await Promise.all(rankPromises);
+        }));
 
-                tx.add(determineRankInstruction)
-            })
-        }
+        console.log("tx info: ", tx)
 
     } catch (e) {
         console.error("Error:", e);
