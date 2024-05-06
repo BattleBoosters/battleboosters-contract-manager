@@ -320,7 +320,7 @@ const updateEvent = async (eventKey: string, newStartDate: number | undefined, n
             console.error("Event not found in the database");
         }
     } catch (e) {
-        console.error("Error updating start date:", e);
+        console.error("Error updating event: ", e);
     }
 }
 
