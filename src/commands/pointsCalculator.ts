@@ -25,6 +25,8 @@ const pointsCalculator = async (eventKey: string) => {
         const event_account_data = await program.account.eventData.fetch(event_account);
 
         let tx = new Transaction()
+        const instructions: any[] = []; // Array to store all instructions
+        const batchSize = 3; // Maximum instructions per transaction
 
         let fightCardPdas = []
 
@@ -56,78 +58,105 @@ const pointsCalculator = async (eventKey: string) => {
         const ranksData = await Promise.all(rankFetchPromises);
 
         await Promise.all(ranksData.map(async ({ rank_data, rank_pda }) => {
+
             const rankPromises = fightCardPdas.map(async fightCardPda => {
                 const [fight_card_link_account] = anchor.web3.PublicKey.findProgramAddressSync(
-                    [Buffer.from('BattleBoosters'), Buffer.from('fightCard'), event_account.toBuffer(), fightCardPda.toBuffer(), rank_data.playerAccount.toBuffer()],
+                    [
+                        Buffer.from('BattleBoosters'), Buffer.from('fightCard'),
+                        event_account.toBuffer(), fightCardPda.toBuffer(), rank_data.playerAccount.toBuffer()
+                    ],
                     program.programId
                 );
-                const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account);
+                try {
+                    const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account);
 
-                console.log(fight_card_link_data)
-                // @ts-ignore
-                const mintable_asset_data = await program.account.mintableGameAssetData.fetch(fight_card_link_data.fighterUsed)
-                console.log(mintable_asset_data)
+                    // @ts-ignore
+                    const mintable_asset_data = await program.account.mintableGameAssetData.fetch(fight_card_link_data.fighterUsed)
 
-                let assetType =  mintable_asset_data.metadata.attributes.find(asset =>
-                    asset.traitType == "Fighter Type"
-                )?.value
+                    let assetType =  mintable_asset_data.metadata.attributes.find(asset =>
+                        asset.traitType == "Fighter Type"
+                    )?.value
 
-                const fighterTypeMap = {
-                    boxing: { boxing: {} },
-                    muaythai: { muayThai: {} },
-                    taekwondo: { taekwondo: {} },
-                    karate: { karate: {} },
-                    judo: { judo: {} },
-                    wrestling: { wrestling: {} },
-                    brazilianjiujitsu: { brazilianJiuJitsu: {} },
-                    sambo: { sambo: {} }
-                };
+                    const fighterTypeMap = {
+                        boxing: { boxing: {} },
+                        muaythai: { muayThai: {} },
+                        taekwondo: { taekwondo: {} },
+                        karate: { karate: {} },
+                        judo: { judo: {} },
+                        wrestling: { wrestling: {} },
+                        brazilianjiujitsu: { brazilianJiuJitsu: {} },
+                        sambo: { sambo: {} }
+                    };
 
-                const fighterTypes = [
-                    'boxing', 'muaythai', 'taekwondo', 'karate', 'judo',
-                    'wrestling', 'brazilianjiujitsu', 'sambo'
-                ];
+                    const fighterTypes = [
+                        'boxing', 'muaythai', 'taekwondo', 'karate', 'judo',
+                        'wrestling', 'brazilianjiujitsu', 'sambo'
+                    ];
 
 
-                // Example fighter type
-                // @ts-ignore
-                const fighterTypeKey = assetType.toLowerCase(); // Ensure the key is in the correct case/format
+                    // Example fighter type
+                    // @ts-ignore
+                    const fighterTypeKey = assetType.toLowerCase(); // Ensure the key is in the correct case/format
 
-                // Get the object from the map
-                //@ts-ignore
-                const fighterTypeObject = fighterTypeMap[fighterTypeKey];
-                // Get the index from the array
-                const fighterIndex = fighterTypes.indexOf(fighterTypeKey);
-                const [fighter_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+                    // Get the object from the map
                     //@ts-ignore
-                    [Buffer.from('BattleBoosters'), Buffer.from('fighterBase'), Buffer.from([fighterIndex])],
-                    program.programId
-                );
+                    const fighterTypeObject = fighterTypeMap[fighterTypeKey];
+                    // Get the index from the array
+                    const fighterIndex = fighterTypes.indexOf(fighterTypeKey);
+                    const [fighter_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+                        //@ts-ignore
+                        [Buffer.from('BattleBoosters'), Buffer.from('fighterBase'), Buffer.from([fighterIndex])],
+                        program.programId
+                    );
 
-                let determineRankInstruction = program.methods.determineRankingPoints(fighterTypeObject)
-                    .accounts({
-                        signer: wallet.publicKey,
-                        event: event_account,
-                        rank: rank_pda,
-                        playerAccount: rank_data.playerAccount,
-                        fightCard: fightCardPda,
-                        fightCardLink: fight_card_link_account,
-                        // @ts-ignore
-                        fighterAsset: fight_card_link_data.fighterUsed,
-                        // @ts-ignore
-                        fighterAssetLink: fight_card_link_data.fighterLinkUsed,
-                        pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
-                        shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
-                        fighterBase: fighter_pda,
-                    }).instruction();
+                    let determineRankInstruction = await program.methods.determineRankingPoints(fighterTypeObject)
+                        .accounts({
+                            signer: wallet.publicKey,
+                            event: event_account,
+                            rank: rank_pda,
+                            playerAccount: rank_data.playerAccount,
+                            fightCard: fightCardPda,
+                            fightCardLink: fight_card_link_account,
+                            // @ts-ignore
+                            fighterAsset: fight_card_link_data.fighterUsed,
+                            // @ts-ignore
+                            fighterAssetLink: fight_card_link_data.fighterLinkUsed,
+                            pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
+                            shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
+                            fighterBase: fighter_pda,
+                        }).instruction();
 
-                // @ts-ignore
-                tx.add(determineRankInstruction);
+                    // // @ts-ignore
+                    // tx.add(determineRankInstruction);
+                    instructions.push(determineRankInstruction);
+                }catch (e){
+                    console.error(`No fight card link found for ${fightCardPda.toString()}`);
+                }
             });
             await Promise.all(rankPromises);
         }));
 
-        console.log("tx info: ", tx)
+        console.log(instructions)
+        // Create batches of instructions
+        for (let i = 0; i < instructions.length; i += batchSize) {
+            const batch = instructions.slice(i, i + batchSize);
+            const tx = new Transaction();
+            tx.add(...batch);
+
+            try {
+                // Send and confirm the transaction
+                // @ts-ignore
+                const tx_info = await program.provider.sendAndConfirm(tx, []);
+                console.log("Transaction confirmed:", tx_info);
+            } catch (e) {
+                console.error("Error sending transaction:", e);
+                // Handle transaction errors (e.g., retry, rollback)
+            }
+        }
+
+        // //@ts-ignore
+        // const tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
+        // console.log("Transaction confirmed:", tx_info);
 
     } catch (e) {
         console.error("Error:", e);

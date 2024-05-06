@@ -153,8 +153,8 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                             let fightCard = {
                                 pubkey: fight_card_pda.toString(),
                                 category: "",
-                                fighterBlue: {name: ""},
-                                fighterRed: {name: ""},
+                                fighterBlue: {name: "", id: "", shortName: ""},
+                                fighterRed: {name: "", id: "", shortName: ""},
                                 title: false
                             }
 
@@ -193,10 +193,16 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                                 const fighterInfoData = fighterInfo.data;
 
                                 let shortName = fighterInfoData.shortName;
+                                let name = fighterInfoData.name;
+                                let id = fighterInfoData.id;
                                 if (fighter.order === 1) {
-                                    fightCard.fighterRed.name = shortName;
+                                    fightCard.fighterRed.name = name;
+                                    fightCard.fighterRed.id = id;
+                                    fightCard.fighterRed.shortName = shortName;
                                 } else if (fighter.order === 2) {
-                                    fightCard.fighterBlue.name = shortName;
+                                    fightCard.fighterBlue.name = name;
+                                    fightCard.fighterRed.id = id;
+                                    fightCard.fighterRed.shortName = shortName;
                                 }
                                 return fighterInfoData;
                             });

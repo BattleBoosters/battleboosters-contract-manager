@@ -5,7 +5,9 @@ const fightCardSchema = new mongoose.Schema({
     pubkey: String,
     category: String,
     fighterBlue: {
+        id: String,
         name: String,
+        shortName:String,
         stats: {
             takedownsAttempted: Number,
             takedownsLanded: Number,
@@ -42,7 +44,9 @@ const fightCardSchema = new mongoose.Schema({
         }
     },
     fighterRed: {
+        id: String,
         name: String,
+        shortName:String,
         stats: {
             takedownsAttempted: Number,
             takedownsLanded: Number,

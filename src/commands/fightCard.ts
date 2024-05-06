@@ -72,7 +72,7 @@ const insertResult = async (event_key: string) => {
             await Promise.all(filteredCompetitions.map(async fight => {
 
                 let event_account = new anchor.web3.PublicKey(event_key)
-                let fight_card_account: anchor.web3.PublicKey = new anchor.web3.PublicKey(event_key)
+                let fight_card_account: anchor.web3.PublicKey | undefined = undefined
 
                 let fightCardData = {
                     eventPubkey: event_account,
@@ -97,7 +97,9 @@ const insertResult = async (event_key: string) => {
 
                 if(statusData.result.name.includes("decision")) {
                     fightCardData.result = { decision: {}}
-                } else if(statusData.result.name.includes("kotko")) {
+                } else if(statusData.result.name.includes("ko")) {
+                    fightCardData.result = { koTko: {}}
+                }else if(statusData.result.name.includes("tko")) {
                     fightCardData.result = { koTko: {}}
                 } else if(statusData.result.name.includes("submission")) {
                     fightCardData.result = { submission: {}}
@@ -124,13 +126,13 @@ const insertResult = async (event_key: string) => {
                     const matchingFightCard = existingEvent.events.find(event =>
                             //@ts-ignore
                             event.fightCards.some(fightCard =>
-                                fightCard.fighterBlue.name === athleteData.shortName ||
-                                fightCard.fighterRed.name === athleteData.shortName
+                                fightCard.fighterBlue.id === athleteData.id ||
+                                fightCard.fighterRed.id === athleteData.id
                             )
                         //@ts-ignore
                     )?.fightCards.find(fightCard =>
-                        fightCard.fighterBlue.name === athleteData.shortName ||
-                        fightCard.fighterRed.name === athleteData.shortName
+                        fightCard.fighterBlue.id === athleteData.id ||
+                        fightCard.fighterRed.id === athleteData.id
                     );
 
                     if (matchingFightCard) {
