@@ -5,7 +5,7 @@ import { start } from "./commands/start.js"
 import {createCompetition, updateCompetition} from "./commands/competition.js"
 import fs from "fs";
 import {TournamentType, RankReward} from "./interfaces/interfaces";
-import {createEvent} from "./commands/event.js";
+import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
 
 program
@@ -80,13 +80,76 @@ program
             );
         }
 
+        if (rankRewards.length == 0){
+            console.log("Error rankRewards need to be provided")
+            return
+        }
         await createEvent(
             tournamentType,
             rankRewards
         );
-
-
     });
+
+
+program.command("update-event")
+    .description("Update an event")
+    .argument('<event_account>', "Event account to update")
+    .option('<new_start_date>', "New start date")
+    .option('<new_end_date>', "New end date")
+    .option('--main-card', 'Set tournament type to main card', false)
+    .option('--prelims', 'Set tournament type to prelims', false)
+    .option('--early-prelims', 'Set tournament type to early prelims', false)
+    .option('--rank-config <path>', 'Path to rank reward configuration file')
+    .action(async(event_account, options) => {
+        const new_start_date = options.new_start_date;
+        const new_end_date = options.new_end_date;
+
+        let tournamentType: TournamentType | undefined =  undefined
+        if (options.mainCard) {
+            tournamentType = { mainCard: {} }
+        } else if (options.prelims) {
+            tournamentType = { prelims: {} };
+        }else if (options.earlyPrelims) {
+            tournamentType = {earlyPrelims: {}};
+        }else {
+            tournamentType = undefined
+        }
+
+        let rankRewards: RankReward[] = [];
+        if (options.rankConfig) {
+            try {
+                const configFile = fs.readFileSync(options.rankConfig, 'utf-8'); // Specify encoding
+                const parsedData = JSON.parse(configFile);
+
+                // Validate if parsedData is an array of RankReward objects
+                if (Array.isArray(parsedData) && parsedData.every(item => isRankReward(item))) {
+                    rankRewards = parsedData;
+                } else {
+                    throw new Error('Invalid rank configuration file: Data does not conform to RankReward structure.');
+                }
+            } catch (error) {
+                console.error('Error reading or parsing rank configuration file:', error);
+                // Handle error appropriately (e.g., exit process or prompt for a valid file)
+            }
+        }
+
+        // Type guard function to check if an object is a RankReward
+        function isRankReward(obj: any): obj is RankReward {
+            return (
+                typeof obj.startRank === 'number' &&
+                (typeof obj.endRank === 'number' || obj.endRank === null) &&
+                typeof obj.prizeAmount === 'number' &&
+                typeof obj.fighterAmount === 'number' &&
+                typeof obj.boosterAmount === 'number' &&
+                typeof obj.championsPassAmount === 'number'
+            );
+        }
+
+
+
+        await updateEvent(event_account, new_start_date, new_end_date, tournamentType, rankRewards)
+})
+
 
 program
     .command('insert-result')

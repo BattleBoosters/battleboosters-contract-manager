@@ -238,4 +238,90 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
 }
 
-export { createEvent }
+const updateEvent = async (eventKey: string, newStartDate: number | undefined, newEndDate: number | undefined, tournament_type: TournamentType | undefined, rank_rewards: RankReward[]) => {
+    const wallet = loadWallet();
+    const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
+    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const { admin_account, program_pda } = initAccounts(program);
+
+    try {
+        await connectToDatabase();
+
+        let updated_rank_rewards: RankReward[] = []
+        rank_rewards.map(el => {
+            updated_rank_rewards.push({
+                startRank: new BN(el.startRank),
+                endRank: el.endRank ? new BN(el.endRank): null,
+                prizeAmount: el.prizeAmount,
+                fighterAmount: el.fighterAmount,
+                boosterAmount: el.boosterAmount,
+                championsPassAmount: el.championsPassAmount
+            })
+        })
+
+        // Find the event in the database
+        const existingEvent = await Event.findOne({
+            events: { $elemMatch: { pubkey: eventKey } }
+        });
+
+        if (existingEvent) {
+            // Find the specific event object within existingEvent.events
+            // @ts-ignore
+            const targetEventObject = existingEvent.events.find(event => event.pubkey === eventKey);
+
+            if (targetEventObject) {
+                // // Update the start date on-chain (assuming you have a function for this)
+                // await updateStartDateOnChain(
+                //     program,
+                //     wallet,
+                //     targetEventObject.pubkey,
+                //     new BN(newStartDate.getTime() / 1000),
+                //     new BN(newEndDate.getTime() / 1000)
+                // );
+                let event_account_to_pubkey = new anchor.web3.PublicKey(eventKey);
+                const event_account_data = await program.account.eventData.fetch(event_account_to_pubkey)
+
+                const tx = await program.methods
+                    .updateEvent(
+                        newStartDate ? new BN(newStartDate) : event_account_data.startDate,
+                        newEndDate ? new BN(newEndDate): event_account_data.endDate,
+                        tournament_type? tournament_type : event_account_data.tournamentType,
+                        updated_rank_rewards.length > 0 ? updated_rank_rewards : event_account_data.rankRewards
+                    )
+                    .accounts({
+                        creator: admin_account.publicKey,
+                        program: program_pda,
+                        event: event_account_to_pubkey,
+                        systemProgram: anchor.web3.SystemProgram.programId,
+                    })
+                    .signers([admin_account])
+                    .rpc();
+
+                console.log("transaction: ", tx)
+                // Update the start date in the database
+                targetEventObject.dateStart = newStartDate;
+                targetEventObject.dateEnd = newEndDate;
+
+                if (rank_rewards.length > 0){
+                    targetEventObject.ranks = rank_rewards;
+                }
+
+                if (tournament_type){
+                    targetEventObject.type = tournament_type;
+                }
+
+                await existingEvent.save();
+
+                console.log("Event updated successfully!");
+            } else {
+                console.error("Target event object not found within existingEvent");
+            }
+        } else {
+            console.error("Event not found in the database");
+        }
+    } catch (e) {
+        console.error("Error updating start date:", e);
+    }
+}
+
+export { createEvent, updateEvent}
