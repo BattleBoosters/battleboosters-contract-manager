@@ -56,14 +56,26 @@ const insertResult = async (event_key: string) => {
 
             const competitions = await axios.get(targetEvent.event['$ref'])
             const competitionData = competitions.data;
-
-            // Filter competitions based on event type
+            // Filter competitions based on fighter IDs and order
             // @ts-ignore
             const filteredCompetitions = competitionData.competitions.filter(fight => {
-
-                // Assuming existingEvent has a 'type' property like 'Main Card', 'Prelims', etc.
-                return fight.cardSegment.description.toLowerCase() == targetEventObject.type.toLocaleLowerCase();
+                const fighter1Id = fight.competitors[0].id;
+                const fighter2Id = fight.competitors[1].id;
+                const fighter1Order = fight.competitors[0].order;
+                const fighter2Order = fight.competitors[1].order;
+                // @ts-ignore
+                return targetEventObject.fightCards.some(fightCard =>
+                    (fightCard.fighterBlue.id === fighter1Id && fighter1Order === 2) ||
+                    (fightCard.fighterRed.id === fighter1Id && fighter1Order === 1) ||
+                    (fightCard.fighterBlue.id === fighter2Id && fighter2Order === 2) ||
+                    (fightCard.fighterRed.id === fighter2Id && fighter2Order === 1)
+                );
             });
+
+            let fightCardToPubkey = new anchor.web3.PublicKey("82uxXxVv6oBWjJnbdJQXvTXr29bY5MdQuyHxwhmSGnvd");
+            // @ts-ignore
+            let fightCardToData =await program.account.fightCardData.fetch(fightCardToPubkey);
+            console.log(fightCardToData.result)
 
             const instructions: any[] = []; // Array to store all instructions
             const batchSize = 3; // Maximum instructions per transaction
