@@ -8,6 +8,7 @@ import {TournamentType, RankReward} from "./interfaces/interfaces";
 import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
 import {pointsCalculator} from "./commands/pointsCalculator.js";
+import {ranksCalculator} from "./commands/ranksCalculator.js";
 
 program
     .command('start')
@@ -166,6 +167,15 @@ program
     .argument('<event_account>', "Event account to determine points")
     .action(async (event_account) =>{
         await pointsCalculator(event_account)
+    })
+
+
+program
+    .command('calculate-ranks')
+    .description('Insert and update rank result on chain')
+    .argument('<event_account>', 'account of the event')
+    .action(async (event_account) =>{
+        await ranksCalculator(event_account)
     })
 
 

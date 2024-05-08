@@ -17,14 +17,13 @@ const pointsCalculator = async (eventKey: string) => {
         await connectToDatabase();
 
         // Find the event in the database
-        const existingEvent = await Event.findOne({
-            events: { $elemMatch: { pubkey: eventKey } }
-        });
+        // const existingEvent = await Event.findOne({
+        //     events: { $elemMatch: { pubkey: eventKey } }
+        // });
 
         const event_account = new anchor.web3.PublicKey(eventKey);
         const event_account_data = await program.account.eventData.fetch(event_account);
 
-        let tx = new Transaction()
         const instructions: any[] = []; // Array to store all instructions
         const batchSize = 3; // Maximum instructions per transaction
 
