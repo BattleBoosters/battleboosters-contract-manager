@@ -8,6 +8,7 @@ const fightCardSchema = new mongoose.Schema({
         id: String,
         name: String,
         shortName:String,
+        winner: Boolean,
         stats: {
             takedownsAttempted: Number,
             takedownsLanded: Number,
@@ -47,6 +48,7 @@ const fightCardSchema = new mongoose.Schema({
         id: String,
         name: String,
         shortName:String,
+        winner: String,
         stats: {
             takedownsAttempted: Number,
             takedownsLanded: Number,
@@ -83,7 +85,7 @@ const fightCardSchema = new mongoose.Schema({
         }
     },
     title: Boolean,
-    winner: String
+    result: String
 });
 
 const ranksSchema = new mongoose.Schema({

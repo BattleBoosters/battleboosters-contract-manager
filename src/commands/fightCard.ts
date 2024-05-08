@@ -72,10 +72,9 @@ const insertResult = async (event_key: string) => {
                 );
             });
 
-            let fightCardToPubkey = new anchor.web3.PublicKey("82uxXxVv6oBWjJnbdJQXvTXr29bY5MdQuyHxwhmSGnvd");
+            //let fightCardToPubkey = new anchor.web3.PublicKey("82uxXxVv6oBWjJnbdJQXvTXr29bY5MdQuyHxwhmSGnvd");
             // @ts-ignore
-            let fightCardToData =await program.account.fightCardData.fetch(fightCardToPubkey);
-            console.log(fightCardToData.result)
+            //let fightCardToData =await program.account.fightCardData.fetch(fightCardToPubkey);
 
             const instructions: any[] = []; // Array to store all instructions
             const batchSize = 3; // Maximum instructions per transaction
@@ -107,20 +106,28 @@ const insertResult = async (event_key: string) => {
 
                 fightCardData.fightDuration = new BN((statusData.period * 300) - (300 - statusData.clock))
 
+                let fightResult = "no contest"
                 if(statusData.result.name.includes("decision")) {
                     fightCardData.result = { decision: {}}
+                    fightResult = "decision"
                 } else if(statusData.result.name.includes("ko")) {
                     fightCardData.result = { koTko: {}}
+                    fightResult = "koTko"
                 }else if(statusData.result.name.includes("tko")) {
                     fightCardData.result = { koTko: {}}
+                    fightResult = "koTko"
                 } else if(statusData.result.name.includes("submission")) {
                     fightCardData.result = { submission: {}}
+                    fightResult = "submission"
                 } else if(statusData.result.name.includes("disqualification")) {
                     fightCardData.result = { disqualification: {}}
+                    fightResult = "disqualification"
                 } else if(statusData.result.name.includes("nocontest")) {
                     fightCardData.result = { noContest: {}}
+                    fightResult = "no contest"
                 } else if(statusData.result.name.includes("draw")) {
                     fightCardData.result = { draw: {}}
+                    fightResult = "draw"
                 } else{
                     console.error("Error result of the fight not found")
                     return
@@ -193,6 +200,7 @@ const insertResult = async (event_key: string) => {
                             matchingFightCard.fighterRed.stats = {
                                 ...fighterStats
                             };
+                            matchingFightCard.fighterRed.winner = fighter.winner;
                             if (fighter.winner) {
                                 fightCardData.winner = {fighterRed:{}}
                             }
@@ -204,7 +212,7 @@ const insertResult = async (event_key: string) => {
                             matchingFightCard.fighterBlue.stats = {
                                 ...fighterStats
                             };
-
+                            matchingFightCard.fighterBlue.winner = fighter.winner;
                             if (fighter.winner) {
                                 fightCardData.winner = {fighterBlue:{}}
                             }
@@ -213,6 +221,7 @@ const insertResult = async (event_key: string) => {
                             }
 
                         }
+                        matchingFightCard.result = fightResult
                         fight_card_account = new anchor.web3.PublicKey(matchingFightCard.pubkey)
 
                     } else {
