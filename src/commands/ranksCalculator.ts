@@ -16,10 +16,20 @@ const ranksCalculator = async (eventKey: string) => {
     try {
         await connectToDatabase();
 
-        // // Find the event in the database
-        // const existingEvent = await Event.findOne({
-        //     events: { $elemMatch: { pubkey: eventKey } }
-        // });
+        // Find the event in the database
+        const existingEvent = await Event.findOne({
+            events: { $elemMatch: { pubkey: eventKey } }
+        });
+        if (!existingEvent) {
+            console.error("Event not found.");
+            return;
+        }
+        // @ts-ignore
+        const eventIndex = existingEvent.events.findIndex(e => e.pubkey === eventKey);
+        if (eventIndex === -1) {
+            console.error("Event not found in events array.");
+            return;
+        }
 
         const event_account = new anchor.web3.PublicKey(eventKey);
         const event_account_data = await program.account.eventData.fetch(event_account);
@@ -48,8 +58,28 @@ const ranksCalculator = async (eventKey: string) => {
 
         //@ts-ignore
         validRanks.sort((a, b) => b.rank_data.totalPoints.cmp(a.rank_data.totalPoints));
+
         await Promise.all(validRanks.map(async ({ rank_data, rank_pda }, index) => {
             try {
+                //@ts-ignore
+                const playerData = existingEvent.events[eventIndex].players.find(p => p.pubkey === rank_data.playerAccount.toString());
+                if (!playerData) {
+                    // If the player does not exist, create a new entry
+                    existingEvent.events[eventIndex].players.push({
+                        pubkey: rank_data.playerAccount.toString(),
+                        name: null,
+                        // @ts-ignore
+                        totalPoints: rank_data.totalPoints.toNumber(),
+                        rank: rank_data.rank,
+                        nonce: rank_data.nonce
+                    });
+                } else {
+                    // Update existing player
+                    // @ts-ignore
+                    playerData.totalPoints = rank_data.totalPoints.toNumber();
+                    playerData.rank = index + 1;
+                }
+
                 const rank_number = index + 1;
                 let updateRankInstruction = await program.methods.adminUpdateRank(new BN(rank_number))
                     .accounts({
@@ -77,6 +107,7 @@ const ranksCalculator = async (eventKey: string) => {
                 // @ts-ignore
                 const tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
                 console.log("Transaction confirmed:", tx_info);
+                await existingEvent.save();  // Save the updated event document
             } catch (e) {
                 console.error("Error sending transaction:", e);
                 // Handle transaction errors (e.g., retry, rollback)

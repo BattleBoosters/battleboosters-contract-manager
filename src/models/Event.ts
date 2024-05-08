@@ -95,13 +95,22 @@ const ranksSchema = new mongoose.Schema({
     championsPassAmount: Number
 });
 
+const playerSchema = new mongoose.Schema({
+    pubkey: String,
+    name: String,
+    totalPoints: Number,
+    rank: Number,
+    nonce: Number
+});
+
 const eventSubSchema = new mongoose.Schema({
     pubkey: String,
     type: String,
     fightCards: [fightCardSchema],
     prizePool: Number,
     ranks: [ranksSchema],
-    participants: Number
+    participants: Number,
+    players: [playerSchema] // Include player rankings in each event
 });
 
 const eventSchema = new mongoose.Schema({
