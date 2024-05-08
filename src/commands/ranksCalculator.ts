@@ -35,7 +35,6 @@ const ranksCalculator = async (eventKey: string) => {
         const event_account_data = await program.account.eventData.fetch(event_account);
 
         const instructions: any[] = []; // Array to store all instructions
-        let pointsCalculated = true
         const batchSize = 5; // Maximum instructions per transaction
 
         // Collect all rank PDAs and fetch data concurrently
