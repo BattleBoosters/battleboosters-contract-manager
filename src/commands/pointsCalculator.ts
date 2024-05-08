@@ -58,85 +58,96 @@ const pointsCalculator = async (eventKey: string) => {
         const ranksData = await Promise.all(rankFetchPromises);
 
         await Promise.all(ranksData.map(async ({ rank_data, rank_pda }) => {
-
-            const rankPromises = fightCardPdas.map(async fightCardPda => {
-                const [fight_card_link_account] = anchor.web3.PublicKey.findProgramAddressSync(
-                    [
-                        Buffer.from('BattleBoosters'), Buffer.from('fightCard'),
-                        event_account.toBuffer(), fightCardPda.toBuffer(), rank_data.playerAccount.toBuffer()
-                    ],
-                    program.programId
-                );
-                try {
-                    const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account);
-
-                    // @ts-ignore
-                    const mintable_asset_data = await program.account.mintableGameAssetData.fetch(fight_card_link_data.fighterUsed)
-
-                    let assetType =  mintable_asset_data.metadata.attributes.find(asset =>
-                        asset.traitType == "Fighter Type"
-                    )?.value
-
-                    const fighterTypeMap = {
-                        boxing: { boxing: {} },
-                        muaythai: { muayThai: {} },
-                        taekwondo: { taekwondo: {} },
-                        karate: { karate: {} },
-                        judo: { judo: {} },
-                        wrestling: { wrestling: {} },
-                        brazilianjiujitsu: { brazilianJiuJitsu: {} },
-                        sambo: { sambo: {} }
-                    };
-
-                    const fighterTypes = [
-                        'boxing', 'muaythai', 'taekwondo', 'karate', 'judo',
-                        'wrestling', 'brazilianjiujitsu', 'sambo'
-                    ];
-
-
-                    // Example fighter type
-                    // @ts-ignore
-                    const fighterTypeKey = assetType.toLowerCase(); // Ensure the key is in the correct case/format
-
-                    // Get the object from the map
-                    //@ts-ignore
-                    const fighterTypeObject = fighterTypeMap[fighterTypeKey];
-                    // Get the index from the array
-                    const fighterIndex = fighterTypes.indexOf(fighterTypeKey);
-                    const [fighter_pda] = anchor.web3.PublicKey.findProgramAddressSync(
-                        //@ts-ignore
-                        [Buffer.from('BattleBoosters'), Buffer.from('fighterBase'), Buffer.from([fighterIndex])],
+            if (!rank_data.isConsumed){
+                const rankPromises = fightCardPdas.map(async fightCardPda => {
+                    const [fight_card_link_account] = anchor.web3.PublicKey.findProgramAddressSync(
+                        [
+                            Buffer.from('BattleBoosters'), Buffer.from('fightCard'),
+                            event_account.toBuffer(), fightCardPda.toBuffer(), rank_data.playerAccount.toBuffer()
+                        ],
                         program.programId
                     );
+                    try {
+                        const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account);
 
-                    let determineRankInstruction = await program.methods.determineRankingPoints(fighterTypeObject)
-                        .accounts({
-                            signer: wallet.publicKey,
-                            event: event_account,
-                            rank: rank_pda,
-                            playerAccount: rank_data.playerAccount,
-                            fightCard: fightCardPda,
-                            fightCardLink: fight_card_link_account,
-                            // @ts-ignore
-                            fighterAsset: fight_card_link_data.fighterUsed,
-                            // @ts-ignore
-                            fighterAssetLink: fight_card_link_data.fighterLinkUsed,
-                            pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
-                            shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
-                            fighterBase: fighter_pda,
-                        }).instruction();
+                        // @ts-ignore
+                        const mintable_asset_data = await program.account.mintableGameAssetData.fetch(fight_card_link_data.fighterUsed)
 
-                    // // @ts-ignore
-                    // tx.add(determineRankInstruction);
-                    instructions.push(determineRankInstruction);
-                }catch (e){
-                    console.error(`No fight card link found for ${fightCardPda.toString()}`);
-                }
-            });
-            await Promise.all(rankPromises);
+                        let assetType =  mintable_asset_data.metadata.attributes.find(asset =>
+                            asset.traitType == "Fighter Type"
+                        )?.value
+
+                        const fighterTypeMap = {
+                            boxing: { boxing: {} },
+                            muaythai: { muayThai: {} },
+                            taekwondo: { taekwondo: {} },
+                            karate: { karate: {} },
+                            judo: { judo: {} },
+                            wrestling: { wrestling: {} },
+                            brazilianjiujitsu: { brazilianJiuJitsu: {} },
+                            sambo: { sambo: {} }
+                        };
+
+                        const fighterTypes = [
+                            'boxing', 'muaythai', 'taekwondo', 'karate', 'judo',
+                            'wrestling', 'brazilianjiujitsu', 'sambo'
+                        ];
+
+
+                        // Example fighter type
+                        // @ts-ignore
+                        const fighterTypeKey = assetType.toLowerCase(); // Ensure the key is in the correct case/format
+
+                        // Get the object from the map
+                        //@ts-ignore
+                        const fighterTypeObject = fighterTypeMap[fighterTypeKey];
+                        // Get the index from the array
+                        const fighterIndex = fighterTypes.indexOf(fighterTypeKey);
+                        const [fighter_pda] = anchor.web3.PublicKey.findProgramAddressSync(
+                            //@ts-ignore
+                            [Buffer.from('BattleBoosters'), Buffer.from('fighterBase'), Buffer.from([fighterIndex])],
+                            program.programId
+                        );
+
+                        const [player_account_pda, player_account_bump] =
+                            anchor.web3.PublicKey.findProgramAddressSync(
+                                [
+                                    Buffer.from('BattleBoosters'),
+                                    Buffer.from('player'),
+                                    rank_data.playerAccount.toBuffer(),
+                                    //admin_account.publicKey.toBuffer(),
+                                ],
+                                program.programId
+                            );
+
+                        let determineRankInstruction = await program.methods.determineRankingPoints(fighterTypeObject)
+                            .accounts({
+                                signer: wallet.publicKey,
+                                event: event_account,
+                                rank: rank_pda,
+                                playerAccount: player_account_pda,
+                                fightCard: fightCardPda,
+                                fightCardLink: fight_card_link_account,
+                                // @ts-ignore
+                                fighterAsset: fight_card_link_data.fighterUsed,
+                                // @ts-ignore
+                                fighterAssetLink: fight_card_link_data.fighterLinkUsed,
+                                pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
+                                shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
+                                fighterBase: fighter_pda,
+                            }).instruction();
+
+                        // // @ts-ignore
+                        // tx.add(determineRankInstruction);
+                        instructions.push(determineRankInstruction);
+                    }catch (e){
+                        console.error(`No fight card link found for ${fightCardPda.toString()}`);
+                    }
+                });
+                await Promise.all(rankPromises);
+            }
         }));
 
-        console.log(instructions)
         // Create batches of instructions
         for (let i = 0; i < instructions.length; i += batchSize) {
             const batch = instructions.slice(i, i + batchSize);
