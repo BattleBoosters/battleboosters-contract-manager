@@ -53,9 +53,80 @@ const insertResult = async (event_key: string) => {
         const targetEventObject = existingEvent.events.find(event => event.pubkey === event_key);
 
         if (existingEvent && targetEvent){
+            const instructions: any[] = []; // Array to store all instructions
+            const batchSize = 3; // Maximum instructions per transaction
+            let event_account = new anchor.web3.PublicKey(event_key)
+            let fight_card_account: anchor.web3.PublicKey | undefined = undefined
+
+            //@ts-ignore
+            const fightCardIDs = new Set(targetEventObject.fightCards.map(fc => fc.id));
+            const matchedFightCards = new Set();
 
             const competitions = await axios.get(targetEvent.event['$ref'])
             const competitionData = competitions.data;
+
+            //@ts-ignore
+            await Promise.all(competitionData.competitions.map(async fight => {
+                //@ts-ignore
+                fight.competitors.forEach(comp => {
+                    //@ts-ignore
+                    const fightCard = existingEvent.events.flatMap(event => event.fightCards).find(fc =>
+                        (fc.fighterBlue.id === comp.id && comp.order === 2) ||
+                        (fc.fighterRed.id === comp.id && comp.order === 1)
+                    );
+
+                    if (fightCard) {
+                        matchedFightCards.add(fightCard.id);
+                        // Additional processing for matched fight cards...
+                    }
+                });
+            }));
+
+            // Identify and update unmatched fight cards
+            //@ts-ignore
+            let updatePromises = targetEventObject.fightCards.map(fightCard => {
+                if (!matchedFightCards.has(fightCard.id)) {
+                    console.log(`Fight card ${fightCard.id} not found in API data, marking as no contest.`);
+                    fightCard.result = 'no contest';  // Update the fight card status locally
+
+                    // Prepare the data to update fight card on chain
+                    let fightCardData = {
+                        eventPubkey: event_account,
+                        eventNonceTracker: new BN(0),
+                        titleFight: false,
+                        fighterBlue: null,
+                        fighterRed: null,
+                        fightDuration: null,
+                        result: { noContest: {} },
+                        winner: null,
+                    };
+
+                    // Create the instruction to update the fight card
+                    return program.methods
+                        .updateFightCard(fightCardData)
+                        .accounts({
+                            creator: admin_account.publicKey,
+                            program: program_pda,
+                            event: event_account,
+                            fightCard: new anchor.web3.PublicKey(fightCard.pubkey), // Make sure this is defined or fetched correctly
+                            systemProgram: anchor.web3.SystemProgram.programId,
+                        })
+                        .instruction()
+                        .then(instruction => {
+                            instructions.push(instruction);  // Add the instruction to the batch
+                        });
+                } else {
+                    return Promise.resolve();  // If the fight card is matched, resolve immediately
+                }
+            });
+
+            // Wait for all fight card updates to complete
+            await Promise.all(updatePromises).then(() => {
+                console.log("All unmatched fight cards have been updated.");
+                // Additional steps if needed
+            });
+
+
             // Filter competitions based on fighter IDs and order
             // @ts-ignore
             const filteredCompetitions = competitionData.competitions.filter(fight => {
@@ -76,14 +147,11 @@ const insertResult = async (event_key: string) => {
             // @ts-ignore
             //let fightCardToData =await program.account.fightCardData.fetch(fightCardToPubkey);
 
-            const instructions: any[] = []; // Array to store all instructions
-            const batchSize = 3; // Maximum instructions per transaction
+
 
             // @ts-ignore
             await Promise.all(filteredCompetitions.map(async fight => {
 
-                let event_account = new anchor.web3.PublicKey(event_key)
-                let fight_card_account: anchor.web3.PublicKey | undefined = undefined
 
                 let fightCardData = {
                     eventPubkey: event_account,
@@ -140,6 +208,7 @@ const insertResult = async (event_key: string) => {
                     const athleteData = athlete.data
                     const statistics = await axios.get(fighter.statistics['$ref'])
                     const statisticsData = statistics.data; // Assuming statistics response is similar
+
 
                     // @ts-ignore
                     const matchingFightCard = existingEvent.events.find(event =>
