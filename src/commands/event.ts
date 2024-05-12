@@ -117,8 +117,11 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
                     if (!eventExist){
 
+                        const instructions: any[] = []; // Array to store all instructions
+                        const batchSize = 4; // Maximum instructions per transaction
+
                         // Create transaction and instruction
-                        let tx = new Transaction();
+                        //let tx = new Transaction();
                         const event_instruction = await program.methods
                             .createNewEvent(
                                 new BN(existingEvent.dateStart),
@@ -133,7 +136,10 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                                 systemProgram: anchor.web3.SystemProgram.programId,
                             }).instruction();
 
-                        tx.add(event_instruction)
+                        instructions.push(event_instruction);
+
+                        // tx.add(event_instruction)
+
 
                         let fightCardNonce = 0
                         // @ts-ignore
@@ -193,17 +199,18 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                                 const fighterInfoData = fighterInfo.data;
 
                                 let shortName = fighterInfoData.shortName;
-                                let name = fighterInfoData.name;
+                                let name = fighterInfoData.fullName;
                                 let id = fighterInfoData.id;
                                 if (fighter.order === 1) {
                                     fightCard.fighterRed.name = name;
                                     fightCard.fighterRed.id = id;
                                     fightCard.fighterRed.shortName = shortName;
-                                } else if (fighter.order === 2) {
+                                }else if (fighter.order === 2) {
                                     fightCard.fighterBlue.name = name;
-                                    fightCard.fighterRed.id = id;
-                                    fightCard.fighterRed.shortName = shortName;
+                                    fightCard.fighterBlue.id = id;
+                                    fightCard.fighterBlue.shortName = shortName;
                                 }
+
                                 return fighterInfoData;
                             });
 
@@ -211,7 +218,8 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
                             // @ts-ignore
                             event.fightCards.push(fightCard);
 
-                            tx.add(fight_card_instruction)
+                            instructions.push(fight_card_instruction)
+                            // tx.add(fight_card_instruction)
                         }
 
                         // Transformation into subdocuments
@@ -220,11 +228,30 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
                         // Create the onChain TX
                         // @ts-ignore
-                        let tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
+                        //let tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
+
+                        console.log(`${Math.ceil(instructions.length / batchSize)} tx(s) will be created on-chain to handle tx limit.`)
+                        // Create batches of instructions
+                        for (let i = 0; i < instructions.length; i += batchSize) {
+                            const batch = instructions.slice(i, i + batchSize);
+                            const tx = new Transaction();
+                            tx.add(...batch);
+
+                            try {
+                                // Send and confirm the transaction
+                                // @ts-ignore
+                                const tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
+                                console.log("Transaction confirmed:", tx_info);
+                            } catch (e) {
+                                console.error("Error sending transaction:", e);
+                                // Handle transaction errors (e.g., retry, rollback)
+                            }
+                        }
+
                         // Save to DB
                         await existingEvent.save()
 
-                        console.info("Event successfully created, tx: ", tx_info)
+                        console.info("Event successfully created")
                     }else {
                         console.error("The event already exist")
                     }

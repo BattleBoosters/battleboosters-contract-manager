@@ -60,41 +60,48 @@ const ranksCalculator = async (eventKey: string) => {
 
         await Promise.all(validRanks.map(async ({ rank_data, rank_pda }, index) => {
             try {
-                //@ts-ignore
-                const playerData = existingEvent.events[eventIndex].players.find(p => p.pubkey === rank_data.playerAccount.toString());
-                if (!playerData) {
-                    // If the player does not exist, create a new entry
-                    existingEvent.events[eventIndex].players.push({
-                        pubkey: rank_data.playerAccount.toString(),
-                        name: null,
+                if (!rank_data.isConsumed){
+
+                    //@ts-ignore
+                    const playerData = existingEvent.events[eventIndex].players.find(p => p.pubkey === rank_data.playerAccount.toString());
+                    const rank_number = index + 1;
+
+                    if (!playerData) {
+                        // If the player does not exist, create a new entry
+                        existingEvent.events[eventIndex].players.push({
+                            pubkey: rank_data.playerAccount.toString(),
+                            name: null,
+                            // @ts-ignore
+                            totalPoints: rank_data.totalPoints.toNumber(),
+                            rank: rank_number,
+                            nonce: rank_data.nonce,
+                            collected: rank_data.isConsumed
+                        });
+                    } else {
+                        // Update existing player
                         // @ts-ignore
-                        totalPoints: rank_data.totalPoints.toNumber(),
-                        rank: rank_data.rank,
-                        nonce: rank_data.nonce
-                    });
-                } else {
-                    // Update existing player
-                    // @ts-ignore
-                    playerData.totalPoints = rank_data.totalPoints.toNumber();
-                    playerData.rank = index + 1;
+                        playerData.totalPoints = rank_data.totalPoints.toNumber();
+                        playerData.rank = rank_number;
+                        playerData.collected = rank_data.isConsumed;
+                    }
+
+                    let updateRankInstruction = await program.methods.adminUpdateRank(new BN(rank_number))
+                        .accounts({
+                            signer: admin_account.publicKey,
+                            event: event_account,
+                            rank: rank_pda,
+                            program: program_pda,
+                        }).instruction();
+
+                    instructions.push(updateRankInstruction);
                 }
-
-                const rank_number = index + 1;
-                let updateRankInstruction = await program.methods.adminUpdateRank(new BN(rank_number))
-                    .accounts({
-                        signer: admin_account.publicKey,
-                        event: event_account,
-                        rank: rank_pda,
-                        program: program_pda,
-                    }).instruction();
-
-                instructions.push(updateRankInstruction);
             }catch (e){
                 console.error(e);
             }
 
         }));
 
+        console.log(`${Math.ceil(instructions.length / batchSize)} tx(s) will be created on-chain to handle tx limit.`)
         // Create batches of instructions
         for (let i = 0; i < instructions.length; i += batchSize) {
             const batch = instructions.slice(i, i + batchSize);
