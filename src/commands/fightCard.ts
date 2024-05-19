@@ -187,7 +187,7 @@ const insertResult = async (event_key: string) => {
                 } else if(statusData.result.name.includes("submission")) {
                     fightCardData.result = { submission: {}}
                     fightResult = "submission"
-                } else if(statusData.result.name.includes("disqualification")) {
+                } else if(statusData.result.name.includes("dq")) {
                     fightCardData.result = { disqualification: {}}
                     fightResult = "disqualification"
                 } else if(statusData.result.name.includes("nocontest")) {

@@ -120,6 +120,7 @@ const ranksCalculator = async (eventKey: string) => {
             }
         }
 
+        console.log("Operation completed")
 
     } catch (e) {
         console.error("Error:", e);

@@ -155,6 +155,7 @@ const pointsCalculator = async (eventKey: string) => {
             }
         }));
 
+        console.log(`${Math.ceil(instructions.length / batchSize)} tx(s) will be created on-chain to handle tx limit.`)
         // Create batches of instructions
         for (let i = 0; i < instructions.length; i += batchSize) {
             const batch = instructions.slice(i, i + batchSize);
@@ -171,7 +172,7 @@ const pointsCalculator = async (eventKey: string) => {
                 // Handle transaction errors (e.g., retry, rollback)
             }
         }
-
+        console.log("Operation completed")
         // //@ts-ignore
         // const tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
         // console.log("Transaction confirmed:", tx_info);

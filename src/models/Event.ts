@@ -112,7 +112,7 @@ const eventSubSchema = new mongoose.Schema({
     fightCards: [fightCardSchema],
     prizePool: Number,
     ranks: [ranksSchema],
-    participants: Number,
+    participants: [String],
     players: [playerSchema] // Include player rankings in each event
 });
 
