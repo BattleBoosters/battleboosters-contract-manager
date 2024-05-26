@@ -4,6 +4,7 @@ import anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
 import connectToDatabase from "../utils/mongodb.js";
 import Event from "../models/Event.js";
+import Player from "../models/Player.js"
 import {Transaction} from "@solana/web3.js";
 const { BN } = anchor
 
@@ -28,6 +29,8 @@ const pointsCalculator = async (eventKey: string) => {
         const batchSize = 3; // Maximum instructions per transaction
 
         let fightCardPdas = []
+        //@ts-ignore
+        let gameAssetAddresses = []; // Array to store game asset addresses
 
         for (let fightCard = 0; fightCard < event_account_data.fightCardNonce; fightCard++){
             const [fight_card_account, fight_card_bump] =
@@ -76,6 +79,7 @@ const pointsCalculator = async (eventKey: string) => {
 
                         if (!fight_card_link_data.isConsumed ){
 
+                            if (fight_card_link_data.fighterUsed) gameAssetAddresses.push(fight_card_link_data.fighterUsed);
                             // @ts-ignore
                             const mintable_asset_data = await program.account.mintableGameAssetData.fetch(fight_card_link_data.fighterUsed)
 
@@ -173,6 +177,33 @@ const pointsCalculator = async (eventKey: string) => {
             }
         }
         console.log("Operation completed")
+
+        // Fetch game asset data and update the database
+        //@ts-ignore
+        const updateGameAssetPromises = gameAssetAddresses.map(async assetPubkey => {
+            const gameAssetData = await program.account.mintableGameAssetData.fetch(assetPubkey);
+            const assetPubkeyString = assetPubkey.toString();
+
+            await Player.findOneAndUpdate(
+                { "gameAssets.gameAsset.pubkey": assetPubkeyString },
+                {
+                    $set: {
+                        "gameAssets.$[elem].gameAsset.isLocked": gameAssetData.isLocked,
+                        "gameAssets.$[elem].gameAsset.isBurned": gameAssetData.isBurned,
+                        "gameAssets.$[elem].gameAsset.isMinted": gameAssetData.isMinted,
+                        "gameAssets.$[elem].isFree": gameAssetData.owner ? false : true,
+                        // Uncomment the following line if metadata needs to be updated
+                        // "gameAssets.$[elem].gameAsset.metadata": gameAssetData.metadata,
+                    }
+                },
+                {
+                    arrayFilters: [{ "elem.gameAsset.pubkey": assetPubkeyString }],
+                    new: true,
+                }
+            );
+        });
+
+        await Promise.all(updateGameAssetPromises);
         // //@ts-ignore
         // const tx_info = await program.provider.sendAndConfirm(tx, [admin_account]);
         // console.log("Transaction confirmed:", tx_info);
