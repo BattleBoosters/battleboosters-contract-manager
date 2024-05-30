@@ -1,0 +1,27 @@
+[
+  {
+    "common": {
+      "value": { "min": 100, "max": 150 }
+    }
+  },
+  {
+    "uncommon": {
+      "value": { "min": 150, "max": 200 }
+    },
+  },
+  {
+    "rare": {
+      "value": { "min": 200, "max": 250 }
+    }
+  },
+  {
+    "epic": {
+      "value": { "min": 250, "max": 300 }
+    }
+  },
+  {
+    "legendary": {
+      "value": { "min": 300, "max": 350 }
+    }
+  }
+]

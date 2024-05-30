@@ -55,8 +55,35 @@ export type Battleboosters = {
         {
           "name": "fighterPackAmount",
           "type": "u8"
+        },
+        {
+          "name": "env",
+          "type": {
+            "defined": "Env"
+          }
         }
       ]
+    },
+    {
+      "name": "updateProgram",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "initializeRarity",
@@ -294,7 +321,7 @@ export type Battleboosters = {
           "isSigner": false
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         },
@@ -333,7 +360,7 @@ export type Battleboosters = {
           "isSigner": false
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         },
@@ -355,6 +382,46 @@ export type Battleboosters = {
           "type": {
             "defined": "FightMetrics"
           }
+        }
+      ]
+    },
+    {
+      "name": "updateRandomnessMysteryBox",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mysteryBox",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "mysteryBoxNonce",
+          "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         }
       ]
     },
@@ -392,43 +459,9 @@ export type Battleboosters = {
           "isSigner": false
         },
         {
-          "name": "bankEscrow",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "priceFeed",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "randomnessAccountData",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Token program. Used to transfer funds to the randomness escrow."
-          ]
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Associated Token program. Used to create the TokenAccount for the randomness escrow."
-          ]
         },
         {
           "name": "rarity",
@@ -437,13 +470,17 @@ export type Battleboosters = {
           "docs": [
             "Rarity PDA"
           ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
+          ]
         }
       ],
       "args": [
-        {
-          "name": "bankEscrowBump",
-          "type": "u8"
-        },
         {
           "name": "requests",
           "type": {
@@ -453,93 +490,6 @@ export type Battleboosters = {
           }
         }
       ]
-    },
-    {
-      "name": "adminAirdropCollectorPack",
-      "docs": [
-        "ONLY FOR TEST PURPOSE"
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "recipient",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "playerAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mysteryBox",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "rarity",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Rarity PDA"
-          ]
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "boosterMintAlowance",
-          "type": "u64"
-        },
-        {
-          "name": "fighterMintAllowance",
-          "type": "u64"
-        },
-        {
-          "name": "championsPassMintAllowance",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "adminSetRandomness",
-      "docs": [
-        "ONLY FOR TEST PURPOSE"
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "program",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "event",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": []
     },
     {
       "name": "createMintableGameAsset",
@@ -595,6 +545,10 @@ export type Battleboosters = {
         {
           "name": "mintableGameAssetLinkNonce",
           "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         },
         {
           "name": "request",
@@ -899,6 +853,11 @@ export type Battleboosters = {
           "isSigner": false
         },
         {
+          "name": "priceFeed",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -993,7 +952,7 @@ export type Battleboosters = {
           "isOptional": true
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         }
@@ -1009,62 +968,6 @@ export type Battleboosters = {
     }
   ],
   "accounts": [
-    {
-      "name": "eventLinkData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "eventPubkey",
-            "docs": [
-              "`Event` PDA public key for direct ref"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "eventNonceTracker",
-            "docs": [
-              "Tracker to link the `EventLink` PDA to the `Event` PDA"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "championsPassPubkey",
-            "docs": [
-              "Ensure a champions pass have been used for `MainCard` access",
-              "`champions_pass_asset` PDA public key for direct ref"
-            ],
-            "type": {
-              "option": "publicKey"
-            }
-          },
-          {
-            "name": "championsPassNonceTracker",
-            "docs": [
-              "Tracker to link the `champions_pass` PDA"
-            ],
-            "type": {
-              "option": "u64"
-            }
-          },
-          {
-            "name": "isConsumed",
-            "docs": [
-              "Prevents the player to claim multiple time the rewards",
-              "If this occurs, it should close and refund the creator of the EventLink PDA?"
-            ],
-            "type": "bool"
-          },
-          {
-            "name": "isInitialized",
-            "docs": [
-              "Prevent accidental multiple initializations of a PDA"
-            ],
-            "type": "bool"
-          }
-        ]
-      }
-    },
     {
       "name": "eventData",
       "type": {
@@ -1121,20 +1024,74 @@ export type Battleboosters = {
             "type": "u64"
           },
           {
-            "name": "randomness",
-            "docs": [
-              "Represent the randomness, will be used to derive child randomness for collecting mystery box"
-            ],
-            "type": {
-              "option": "bytes"
-            }
-          },
-          {
             "name": "nonce",
             "docs": [
               "Nonce of the `event`"
             ],
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "eventLinkData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "eventPubkey",
+            "docs": [
+              "`Event` PDA public key for direct ref"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "eventNonceTracker",
+            "docs": [
+              "Tracker to link the `EventLink` PDA to the `Event` PDA"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rankNonce",
+            "docs": [
+              "User rank nonce to recreate the pda"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "championsPassPubkey",
+            "docs": [
+              "Ensure a champions pass have been used for `MainCard` access",
+              "`champions_pass_asset` PDA public key for direct ref"
+            ],
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "championsPassNonceTracker",
+            "docs": [
+              "Tracker to link the `champions_pass` PDA"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "isConsumed",
+            "docs": [
+              "Prevents the player to claim multiple time the rewards",
+              "If this occurs, it should close and refund the creator of the EventLink PDA?"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "isInitialized",
+            "docs": [
+              "Prevent accidental multiple initializations of a PDA"
+            ],
+            "type": "bool"
           }
         ]
       }
@@ -1269,6 +1226,24 @@ export type Battleboosters = {
             }
           },
           {
+            "name": "fighterLinkUsed",
+            "docs": [
+              "The `Pubkey` of the fighter link used"
+            ],
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "fighterLinkUsedNonceTracker",
+            "docs": [
+              "Tracker to link the `FighterLink` PDA to the `FightCardLink` PDA"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
             "name": "shieldBoosterUsed",
             "docs": [
               "The `Pubkey` of the booster used"
@@ -1332,7 +1307,7 @@ export type Battleboosters = {
       }
     },
     {
-      "name": "fighterData",
+      "name": "fighterBaseData",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1463,12 +1438,8 @@ export type Battleboosters = {
           },
           {
             "name": "randomnessAccount",
-            "type": "publicKey"
-          },
-          {
-            "name": "randomness",
             "type": {
-              "option": "bytes"
+              "option": "publicKey"
             }
           },
           {
@@ -1531,13 +1502,14 @@ export type Battleboosters = {
           {
             "name": "mintableGameAssetNonce",
             "docs": [
-              "Represent the current amount of mintable game asset pack"
+              "Represent the current amount of mintable game asset"
             ],
             "type": "u64"
           },
           {
             "name": "adminPubkey",
             "docs": [
+              "Represent the current amount in circulation of game assets",
               "The authority which are allowed to administrate the contract"
             ],
             "type": "publicKey"
@@ -1583,6 +1555,12 @@ export type Battleboosters = {
               "Bank bump"
             ],
             "type": "u8"
+          },
+          {
+            "name": "env",
+            "type": {
+              "defined": "Env"
+            }
           }
         ]
       }
@@ -1728,7 +1706,7 @@ export type Battleboosters = {
             "type": "u16"
           },
           {
-            "name": "takedownsSlam",
+            "name": "takedownsSlams",
             "type": "u16"
           },
           {
@@ -1876,10 +1854,6 @@ export type Battleboosters = {
             "type": "u32"
           },
           {
-            "name": "energy",
-            "type": "u32"
-          },
-          {
             "name": "damage",
             "type": "u32"
           }
@@ -1946,7 +1920,7 @@ export type Battleboosters = {
             }
           },
           {
-            "name": "knockdowns",
+            "name": "knockDowns",
             "type": {
               "defined": "Metrics"
             }
@@ -2048,7 +2022,7 @@ export type Battleboosters = {
             }
           },
           {
-            "name": "advanceToSlide",
+            "name": "advanceToSide",
             "type": {
               "defined": "Metrics"
             }
@@ -2178,30 +2152,15 @@ export type Battleboosters = {
       }
     },
     {
-      "name": "FightCardResult",
+      "name": "Env",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "KoTko"
+            "name": "Dev"
           },
           {
-            "name": "Decision"
-          },
-          {
-            "name": "Submission"
-          },
-          {
-            "name": "Disqualification"
-          },
-          {
-            "name": "NoContest"
-          },
-          {
-            "name": "Draw"
-          },
-          {
-            "name": "InternalCancellation"
+            "name": "Prod"
           }
         ]
       }
@@ -2532,6 +2491,35 @@ export type Battleboosters = {
           }
         ]
       }
+    },
+    {
+      "name": "FightCardResult",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "KoTko"
+          },
+          {
+            "name": "Decision"
+          },
+          {
+            "name": "Submission"
+          },
+          {
+            "name": "Disqualification"
+          },
+          {
+            "name": "NoContest"
+          },
+          {
+            "name": "Draw"
+          },
+          {
+            "name": "InternalCancellation"
+          }
+        ]
+      }
     }
   ],
   "events": [
@@ -2730,7 +2718,7 @@ export type Battleboosters = {
     {
       "code": 6030,
       "name": "RandomnessIsNone",
-      "msg": "Randomness is required to collect your reward. Please request randomness and try again."
+      "msg": "Randomness is required. Please request randomness and try again."
     },
     {
       "code": 6031,
@@ -2756,6 +2744,11 @@ export type Battleboosters = {
       "code": 6035,
       "name": "RandomnessNotResolved",
       "msg": "Randomness is not yet resolved"
+    },
+    {
+      "code": 6036,
+      "name": "RandomnessNotMatchingProvided",
+      "msg": "Wrong randomness account provided"
     }
   ]
 };
@@ -2817,8 +2810,35 @@ export const IDL: Battleboosters = {
         {
           "name": "fighterPackAmount",
           "type": "u8"
+        },
+        {
+          "name": "env",
+          "type": {
+            "defined": "Env"
+          }
         }
       ]
+    },
+    {
+      "name": "updateProgram",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "initializeRarity",
@@ -3056,7 +3076,7 @@ export const IDL: Battleboosters = {
           "isSigner": false
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         },
@@ -3095,7 +3115,7 @@ export const IDL: Battleboosters = {
           "isSigner": false
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         },
@@ -3117,6 +3137,46 @@ export const IDL: Battleboosters = {
           "type": {
             "defined": "FightMetrics"
           }
+        }
+      ]
+    },
+    {
+      "name": "updateRandomnessMysteryBox",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mysteryBox",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "mysteryBoxNonce",
+          "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         }
       ]
     },
@@ -3154,43 +3214,9 @@ export const IDL: Battleboosters = {
           "isSigner": false
         },
         {
-          "name": "bankEscrow",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "priceFeed",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "randomnessAccountData",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Token program. Used to transfer funds to the randomness escrow."
-          ]
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Associated Token program. Used to create the TokenAccount for the randomness escrow."
-          ]
         },
         {
           "name": "rarity",
@@ -3199,13 +3225,17 @@ export const IDL: Battleboosters = {
           "docs": [
             "Rarity PDA"
           ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
+          ]
         }
       ],
       "args": [
-        {
-          "name": "bankEscrowBump",
-          "type": "u8"
-        },
         {
           "name": "requests",
           "type": {
@@ -3215,93 +3245,6 @@ export const IDL: Battleboosters = {
           }
         }
       ]
-    },
-    {
-      "name": "adminAirdropCollectorPack",
-      "docs": [
-        "ONLY FOR TEST PURPOSE"
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "recipient",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "playerAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mysteryBox",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "rarity",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Rarity PDA"
-          ]
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "boosterMintAlowance",
-          "type": "u64"
-        },
-        {
-          "name": "fighterMintAllowance",
-          "type": "u64"
-        },
-        {
-          "name": "championsPassMintAllowance",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "adminSetRandomness",
-      "docs": [
-        "ONLY FOR TEST PURPOSE"
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "program",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "event",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": []
     },
     {
       "name": "createMintableGameAsset",
@@ -3357,6 +3300,10 @@ export const IDL: Battleboosters = {
         {
           "name": "mintableGameAssetLinkNonce",
           "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         },
         {
           "name": "request",
@@ -3661,6 +3608,11 @@ export const IDL: Battleboosters = {
           "isSigner": false
         },
         {
+          "name": "priceFeed",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -3755,7 +3707,7 @@ export const IDL: Battleboosters = {
           "isOptional": true
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         }
@@ -3771,62 +3723,6 @@ export const IDL: Battleboosters = {
     }
   ],
   "accounts": [
-    {
-      "name": "eventLinkData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "eventPubkey",
-            "docs": [
-              "`Event` PDA public key for direct ref"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "eventNonceTracker",
-            "docs": [
-              "Tracker to link the `EventLink` PDA to the `Event` PDA"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "championsPassPubkey",
-            "docs": [
-              "Ensure a champions pass have been used for `MainCard` access",
-              "`champions_pass_asset` PDA public key for direct ref"
-            ],
-            "type": {
-              "option": "publicKey"
-            }
-          },
-          {
-            "name": "championsPassNonceTracker",
-            "docs": [
-              "Tracker to link the `champions_pass` PDA"
-            ],
-            "type": {
-              "option": "u64"
-            }
-          },
-          {
-            "name": "isConsumed",
-            "docs": [
-              "Prevents the player to claim multiple time the rewards",
-              "If this occurs, it should close and refund the creator of the EventLink PDA?"
-            ],
-            "type": "bool"
-          },
-          {
-            "name": "isInitialized",
-            "docs": [
-              "Prevent accidental multiple initializations of a PDA"
-            ],
-            "type": "bool"
-          }
-        ]
-      }
-    },
     {
       "name": "eventData",
       "type": {
@@ -3883,20 +3779,74 @@ export const IDL: Battleboosters = {
             "type": "u64"
           },
           {
-            "name": "randomness",
-            "docs": [
-              "Represent the randomness, will be used to derive child randomness for collecting mystery box"
-            ],
-            "type": {
-              "option": "bytes"
-            }
-          },
-          {
             "name": "nonce",
             "docs": [
               "Nonce of the `event`"
             ],
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "eventLinkData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "eventPubkey",
+            "docs": [
+              "`Event` PDA public key for direct ref"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "eventNonceTracker",
+            "docs": [
+              "Tracker to link the `EventLink` PDA to the `Event` PDA"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rankNonce",
+            "docs": [
+              "User rank nonce to recreate the pda"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "championsPassPubkey",
+            "docs": [
+              "Ensure a champions pass have been used for `MainCard` access",
+              "`champions_pass_asset` PDA public key for direct ref"
+            ],
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "championsPassNonceTracker",
+            "docs": [
+              "Tracker to link the `champions_pass` PDA"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "isConsumed",
+            "docs": [
+              "Prevents the player to claim multiple time the rewards",
+              "If this occurs, it should close and refund the creator of the EventLink PDA?"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "isInitialized",
+            "docs": [
+              "Prevent accidental multiple initializations of a PDA"
+            ],
+            "type": "bool"
           }
         ]
       }
@@ -4031,6 +3981,24 @@ export const IDL: Battleboosters = {
             }
           },
           {
+            "name": "fighterLinkUsed",
+            "docs": [
+              "The `Pubkey` of the fighter link used"
+            ],
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "fighterLinkUsedNonceTracker",
+            "docs": [
+              "Tracker to link the `FighterLink` PDA to the `FightCardLink` PDA"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
             "name": "shieldBoosterUsed",
             "docs": [
               "The `Pubkey` of the booster used"
@@ -4094,7 +4062,7 @@ export const IDL: Battleboosters = {
       }
     },
     {
-      "name": "fighterData",
+      "name": "fighterBaseData",
       "type": {
         "kind": "struct",
         "fields": [
@@ -4225,12 +4193,8 @@ export const IDL: Battleboosters = {
           },
           {
             "name": "randomnessAccount",
-            "type": "publicKey"
-          },
-          {
-            "name": "randomness",
             "type": {
-              "option": "bytes"
+              "option": "publicKey"
             }
           },
           {
@@ -4293,13 +4257,14 @@ export const IDL: Battleboosters = {
           {
             "name": "mintableGameAssetNonce",
             "docs": [
-              "Represent the current amount of mintable game asset pack"
+              "Represent the current amount of mintable game asset"
             ],
             "type": "u64"
           },
           {
             "name": "adminPubkey",
             "docs": [
+              "Represent the current amount in circulation of game assets",
               "The authority which are allowed to administrate the contract"
             ],
             "type": "publicKey"
@@ -4345,6 +4310,12 @@ export const IDL: Battleboosters = {
               "Bank bump"
             ],
             "type": "u8"
+          },
+          {
+            "name": "env",
+            "type": {
+              "defined": "Env"
+            }
           }
         ]
       }
@@ -4490,7 +4461,7 @@ export const IDL: Battleboosters = {
             "type": "u16"
           },
           {
-            "name": "takedownsSlam",
+            "name": "takedownsSlams",
             "type": "u16"
           },
           {
@@ -4638,10 +4609,6 @@ export const IDL: Battleboosters = {
             "type": "u32"
           },
           {
-            "name": "energy",
-            "type": "u32"
-          },
-          {
             "name": "damage",
             "type": "u32"
           }
@@ -4708,7 +4675,7 @@ export const IDL: Battleboosters = {
             }
           },
           {
-            "name": "knockdowns",
+            "name": "knockDowns",
             "type": {
               "defined": "Metrics"
             }
@@ -4810,7 +4777,7 @@ export const IDL: Battleboosters = {
             }
           },
           {
-            "name": "advanceToSlide",
+            "name": "advanceToSide",
             "type": {
               "defined": "Metrics"
             }
@@ -4940,30 +4907,15 @@ export const IDL: Battleboosters = {
       }
     },
     {
-      "name": "FightCardResult",
+      "name": "Env",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "KoTko"
+            "name": "Dev"
           },
           {
-            "name": "Decision"
-          },
-          {
-            "name": "Submission"
-          },
-          {
-            "name": "Disqualification"
-          },
-          {
-            "name": "NoContest"
-          },
-          {
-            "name": "Draw"
-          },
-          {
-            "name": "InternalCancellation"
+            "name": "Prod"
           }
         ]
       }
@@ -5294,6 +5246,35 @@ export const IDL: Battleboosters = {
           }
         ]
       }
+    },
+    {
+      "name": "FightCardResult",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "KoTko"
+          },
+          {
+            "name": "Decision"
+          },
+          {
+            "name": "Submission"
+          },
+          {
+            "name": "Disqualification"
+          },
+          {
+            "name": "NoContest"
+          },
+          {
+            "name": "Draw"
+          },
+          {
+            "name": "InternalCancellation"
+          }
+        ]
+      }
     }
   ],
   "events": [
@@ -5492,7 +5473,7 @@ export const IDL: Battleboosters = {
     {
       "code": 6030,
       "name": "RandomnessIsNone",
-      "msg": "Randomness is required to collect your reward. Please request randomness and try again."
+      "msg": "Randomness is required. Please request randomness and try again."
     },
     {
       "code": 6031,
@@ -5518,6 +5499,11 @@ export const IDL: Battleboosters = {
       "code": 6035,
       "name": "RandomnessNotResolved",
       "msg": "Randomness is not yet resolved"
+    },
+    {
+      "code": 6036,
+      "name": "RandomnessNotMatchingProvided",
+      "msg": "Wrong randomness account provided"
     }
   ]
 };

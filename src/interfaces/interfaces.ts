@@ -14,6 +14,16 @@ interface MainCardType{
     mainCard: {}; // Could add specific properties for mainCard later
 }
 
+interface DevEnv {
+    dev: {};
+}
+
+interface ProdEnv {
+    prod: {};
+}
+
+type Env = DevEnv | ProdEnv;
+
 // Union type to encompass all possible tournament types
 type TournamentType = PrelimsType | EarlyPrelimsType | MainCardType;
 
@@ -62,6 +72,69 @@ interface FightStatus {
 
 
 
+interface AttributeRange {
+    min: number;
+    max: number;
+}
+
+interface RarityAttributes {
+    power: AttributeRange;
+    lifespan: AttributeRange;
+}
+
+interface Common {
+    common: RarityAttributes;
+}
+
+interface Uncommon {
+    uncommon: RarityAttributes;
+}
+
+interface Rare {
+    rare: RarityAttributes;
+}
+
+interface Epic {
+    epic: RarityAttributes;
+}
+
+interface Legendary {
+    legendary: RarityAttributes;
+}
+
+type FighterRarityType = Common | Uncommon | Rare | Epic | Legendary;
+
+
+interface ValueRange {
+    min: number;
+    max: number;
+}
+
+interface BoosterRarityAttributes {
+    value: ValueRange;
+}
+
+interface CommonBooster {
+    common: BoosterRarityAttributes;
+}
+
+interface UncommonBooster {
+    uncommon: BoosterRarityAttributes;
+}
+
+interface RareBooster {
+    rare: BoosterRarityAttributes;
+}
+
+interface EpicBooster {
+    epic: BoosterRarityAttributes;
+}
+
+interface LegendaryBooster {
+    legendary: BoosterRarityAttributes;
+}
+
+type BoosterRarityType = CommonBooster | UncommonBooster | RareBooster | EpicBooster | LegendaryBooster;
 
 // Export the interfaces
-export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat, FightStatus };
+export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat, FightStatus, Env, FighterRarityType, BoosterRarityType };

@@ -1,0 +1,32 @@
+[
+  {
+    "common": {
+      "power": { "min": 100, "max": 150 },
+      "lifespan": { "min": 100, "max": 150 }
+    }
+  },
+  {
+    "uncommon": {
+      "power": { "min": 150, "max": 200 },
+      "lifespan": { "min": 150, "max": 200 }
+    },
+  },
+  {
+    "rare": {
+      "power": { "min": 200, "max": 250 },
+      "lifespan": { "min": 200, "max": 250 }
+    }
+  },
+  {
+    "epic": {
+      "power": { "min": 250, "max": 300 },
+      "lifespan": { "min": 250, "max": 300 }
+    }
+  },
+  {
+    "legendary": {
+      "power": { "min": 300, "max": 350 },
+      "lifespan": { "min": 300, "max": 350 }
+    }
+  }
+]

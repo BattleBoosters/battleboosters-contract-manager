@@ -386,6 +386,46 @@
       ]
     },
     {
+      "name": "updateRandomnessMysteryBox",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mysteryBox",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "mysteryBoxNonce",
+          "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
       "name": "purchaseMysteryBox",
       "accounts": [
         {
@@ -424,9 +464,12 @@
           "isSigner": false
         },
         {
-          "name": "randomnessAccountData",
-          "isMut": false,
-          "isSigner": false
+          "name": "rarity",
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "Rarity PDA"
+          ]
         },
         {
           "name": "systemProgram",
@@ -434,30 +477,6 @@
           "isSigner": false,
           "docs": [
             "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Token program. Used to transfer funds to the randomness escrow."
-          ]
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Associated Token program. Used to create the TokenAccount for the randomness escrow."
-          ]
-        },
-        {
-          "name": "rarity",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Rarity PDA"
           ]
         }
       ],
@@ -526,6 +545,10 @@
         {
           "name": "mintableGameAssetLinkNonce",
           "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         },
         {
           "name": "request",
@@ -830,7 +853,7 @@
           "isSigner": false
         },
         {
-          "name": "randomnessAccountData",
+          "name": "priceFeed",
           "isMut": false,
           "isSigner": false
         },
@@ -1415,7 +1438,9 @@
           },
           {
             "name": "randomnessAccount",
-            "type": "publicKey"
+            "type": {
+              "option": "publicKey"
+            }
           },
           {
             "name": "probabilityTier",
@@ -1477,13 +1502,14 @@
           {
             "name": "mintableGameAssetNonce",
             "docs": [
-              "Represent the current amount of mintable game asset pack"
+              "Represent the current amount of mintable game asset"
             ],
             "type": "u64"
           },
           {
             "name": "adminPubkey",
             "docs": [
+              "Represent the current amount in circulation of game assets",
               "The authority which are allowed to administrate the contract"
             ],
             "type": "publicKey"
@@ -1680,7 +1706,7 @@
             "type": "u16"
           },
           {
-            "name": "takedownsSlam",
+            "name": "takedownsSlams",
             "type": "u16"
           },
           {
@@ -1894,7 +1920,7 @@
             }
           },
           {
-            "name": "knockdowns",
+            "name": "knockDowns",
             "type": {
               "defined": "Metrics"
             }
@@ -1996,7 +2022,7 @@
             }
           },
           {
-            "name": "advanceToSlide",
+            "name": "advanceToSide",
             "type": {
               "defined": "Metrics"
             }
@@ -2121,35 +2147,6 @@
             "type": {
               "defined": "NftType"
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "FightCardResult",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "KoTko"
-          },
-          {
-            "name": "Decision"
-          },
-          {
-            "name": "Submission"
-          },
-          {
-            "name": "Disqualification"
-          },
-          {
-            "name": "NoContest"
-          },
-          {
-            "name": "Draw"
-          },
-          {
-            "name": "InternalCancellation"
           }
         ]
       }
@@ -2494,6 +2491,35 @@
           }
         ]
       }
+    },
+    {
+      "name": "FightCardResult",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "KoTko"
+          },
+          {
+            "name": "Decision"
+          },
+          {
+            "name": "Submission"
+          },
+          {
+            "name": "Disqualification"
+          },
+          {
+            "name": "NoContest"
+          },
+          {
+            "name": "Draw"
+          },
+          {
+            "name": "InternalCancellation"
+          }
+        ]
+      }
     }
   ],
   "events": [
@@ -2692,7 +2718,7 @@
     {
       "code": 6030,
       "name": "RandomnessIsNone",
-      "msg": "Randomness is required to collect your reward. Please request randomness and try again."
+      "msg": "Randomness is required. Please request randomness and try again."
     },
     {
       "code": 6031,
@@ -2718,6 +2744,11 @@
       "code": 6035,
       "name": "RandomnessNotResolved",
       "msg": "Randomness is not yet resolved"
+    },
+    {
+      "code": 6036,
+      "name": "RandomnessNotMatchingProvided",
+      "msg": "Wrong randomness account provided"
     }
   ]
 }

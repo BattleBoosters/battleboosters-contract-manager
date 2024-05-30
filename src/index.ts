@@ -4,24 +4,70 @@ import {program} from "commander"
 import { start } from "./commands/start.js"
 import {createCompetition, updateCompetition} from "./commands/competition.js"
 import fs from "fs";
-import {TournamentType, RankReward} from "./interfaces/interfaces";
+import {TournamentType, RankReward, FighterRarityType, BoosterRarityType} from "./interfaces/interfaces";
 import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
 import {pointsCalculator} from "./commands/pointsCalculator.js";
 import {ranksCalculator} from "./commands/ranksCalculator.js";
+import {initializeProgram, initializeRarity} from "./commands/initialize.js";
 
 program
-    .command('start')
-    .description('Start the program')
-    .action(() => {
+    .command('initialize-program')
+    .argument('<fighter_price>', "Fighter price")
+    .argument('<booster_price>', "Booster price")
+    .option('--env <env>', 'Set the environment ({dev:{}} or {prod:{}})', '{"prod":{}}')
+    .action(async (fighterPrice, boosterPrice, options) =>{
+        const { env } = options;
 
-        // Your existing start() function logic here
-        start().then(() => {
-            console.log('Program started successfully.');
-        }).catch(error => {
-            console.error('Error starting program:', error);
-        });
-    });
+        const envObject = JSON.parse(env);
+        if (!envObject.dev && !envObject.prod) {
+            throw new Error();
+        }
+
+        await initializeProgram(fighterPrice, boosterPrice, envObject)
+})
+
+program
+    .command('initialize-rarity')
+    .argument('<probs_tier_1>', "Probability tier 1 from common to legendary [10,20,30,20,20]")
+    .argument('<probs_tier_2>', "Probability tier 2 from common to legendary [10,20,30,20,20]")
+    .argument('<probs_tier_3>', "Probability tier 3 from common to legendary [10,20,30,20,20]")
+    .option('--fighter-rarity <path>', 'Path to fighter rarity', './fighters-rarity.json')
+    .option('--booster-shield-rarity <path>', 'Path to booster shield rarity', './booster-shield-rarity.json')
+    .option('--booster-points-rarity <path>', 'Path to booster points rarity', './booster-points-rarity.json')
+    .action(async (probsTier1, probsTier2, probsTier3, options) =>{
+
+        const readRarityFile = (path: string): any[] => {
+            try {
+                const configFile = fs.readFileSync(path, 'utf-8'); // Specify encoding
+                return JSON.parse(configFile);
+            } catch (error) {
+                console.error(`Error reading or parsing file at ${path}:`, error);
+                return [];
+            }
+        };
+        const fighter_rarity: FighterRarityType[] = options.fighterRarity ? readRarityFile(options.fighterRarity) : [];
+        const booster_shield_rarity: BoosterRarityType[] = options.boosterShieldRarity ? readRarityFile(options.boosterShieldRarity) : [];
+        const booster_points_rarity: BoosterRarityType[] = options.boosterPointsRarity ? readRarityFile(options.boosterPointsRarity) : [];
+        
+        const isSumEqualTo100 = (arr: number[]): boolean => arr.reduce((acc, curr) => acc + curr, 0) === 100;
+        const probsTier1Object = JSON.parse(probsTier1);
+        const probsTier2Object = JSON.parse(probsTier2);
+        const probsTier3Object = JSON.parse(probsTier3);
+
+
+        if (!isSumEqualTo100(probsTier1Object)){
+            throw new Error('Probability tier 1 does not sum 100%');
+        }
+        if (!isSumEqualTo100(probsTier2Object)){
+            throw new Error('Probability tier 2 does not sum 100%');
+        }
+        if (!isSumEqualTo100(probsTier3Object)){
+            throw new Error('Probability tier 3 does not sum 100%');
+        }
+
+        await initializeRarity(probsTier1Object, probsTier2Object, probsTier3Object, fighter_rarity, booster_shield_rarity, booster_points_rarity)
+    })
 
 program
     .command('create-competition').action(async () =>{
