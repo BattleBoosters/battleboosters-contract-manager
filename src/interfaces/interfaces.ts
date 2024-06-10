@@ -134,7 +134,61 @@ interface LegendaryBooster {
     legendary: BoosterRarityAttributes;
 }
 
+interface Metric {
+    points: number;
+    damage: number;
+}
+
+interface Metrics {
+    takedownsAttempted: Metric;
+    takedownsLanded: Metric;
+    takedownsSlam: Metric;
+    sigClinchHeadStrikesAttempted: Metric;
+    sigClinchHeadStrikesLanded: Metric;
+    sigClinchBodyStrikesAttempted: Metric;
+    sigClinchBodyStrikesLanded: Metric;
+    sigClinchLegStrikesAttempted: Metric;
+    sigClinchLegStrikesLanded: Metric;
+    knockDowns: Metric;
+    sigDistanceHeadStrikesAttempted: Metric;
+    sigDistanceHeadStrikesLanded: Metric;
+    sigDistanceBodyStrikesAttempted: Metric;
+    sigDistanceBodyStrikesLanded: Metric;
+    sigDistanceLegStrikesAttempted: Metric;
+    sigDistanceLegStrikesLanded: Metric;
+    reversals: Metric;
+    submissions: Metric;
+    secondsInControl: Metric;
+    sigGroundHeadStrikesAttempted: Metric;
+    sigGroundHeadStrikesLanded: Metric;
+    sigGroundBodyStrikesAttempted: Metric;
+    sigGroundBodyStrikesLanded: Metric;
+    sigGroundLegStrikesAttempted: Metric;
+    sigGroundLegStrikesLanded: Metric;
+    advanceToHalfGuard: Metric;
+    advanceToSide: Metric;
+    advanceToMount: Metric;
+    advanceToBack: Metric;
+}
+
+interface FighterTypeMapping {
+    [key: number]: string;
+}
+
+type FighterTypeKeys = keyof typeof fighterTypes;
+
+const fighterTypes = {
+    Boxing: { boxing: {} },
+    MuayThai: { muayThai: {} },
+    Taekwondo: { taekwondo: {} },
+    Karate: { karate: {} },
+    Judo: { judo: {} },
+    Wrestling: { wrestling: {} },
+    BrazilianJiuJitsu: { brazilianJiuJitsu: {} },
+    Sambo: { sambo: {} },
+};
+
 type BoosterRarityType = CommonBooster | UncommonBooster | RareBooster | EpicBooster | LegendaryBooster;
 
 // Export the interfaces
-export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat, FightStatus, Env, FighterRarityType, BoosterRarityType };
+export { PrelimsType, EarlyPrelimsType, MainCardType, TournamentType, RankReward, Stat, FightStatus, Env, FighterRarityType, BoosterRarityType, Metrics, FighterTypeMapping, FighterTypeKeys  };

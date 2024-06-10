@@ -4,12 +4,42 @@ import {program} from "commander"
 import { start } from "./commands/start.js"
 import {createCompetition, updateCompetition} from "./commands/competition.js"
 import fs from "fs";
-import {TournamentType, RankReward, FighterRarityType, BoosterRarityType} from "./interfaces/interfaces";
+import {
+    TournamentType,
+    RankReward,
+    FighterRarityType,
+    BoosterRarityType,
+    FighterTypeKeys, FighterTypeMapping
+} from "./interfaces/interfaces";
 import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
 import {pointsCalculator} from "./commands/pointsCalculator.js";
 import {ranksCalculator} from "./commands/ranksCalculator.js";
 import {initializeProgram, initializeRarity} from "./commands/initialize.js";
+import {createFighterBase} from "./commands/fighterBase.js";
+import path from 'path';
+
+const fighterTypeMapping: FighterTypeMapping = {
+    0: 'Boxing',
+    1: 'MuayThai',
+    2: 'Taekwondo',
+    3: 'Karate',
+    4: 'Judo',
+    5: 'Wrestling',
+    6: 'BrazilianJiuJitsu',
+    7: 'Sambo',
+};
+
+const fighterTypes = {
+    Boxing: { boxing: {} },
+    MuayThai: { muayThai: {} },
+    Taekwondo: { taekwondo: {} },
+    Karate: { karate: {} },
+    Judo: { judo: {} },
+    Wrestling: { wrestling: {} },
+    BrazilianJiuJitsu: { brazilianJiuJitsu: {} },
+    Sambo: { sambo: {} },
+};
 
 program
     .command('initialize-program')
@@ -32,9 +62,9 @@ program
     .argument('<probs_tier_1>', "Probability tier 1 from common to legendary [10,20,30,20,20]")
     .argument('<probs_tier_2>', "Probability tier 2 from common to legendary [10,20,30,20,20]")
     .argument('<probs_tier_3>', "Probability tier 3 from common to legendary [10,20,30,20,20]")
-    .option('--fighter-rarity <path>', 'Path to fighter rarity', './fighters-rarity.json')
-    .option('--booster-shield-rarity <path>', 'Path to booster shield rarity', './booster-shield-rarity.json')
-    .option('--booster-points-rarity <path>', 'Path to booster points rarity', './booster-points-rarity.json')
+    .option('--fighter-rarity <path>', 'Path to fighter rarity', '../src/fighters-rarity.json')
+    .option('--booster-shield-rarity <path>', 'Path to booster shield rarity', '../src/booster-shield-rarity.json')
+    .option('--booster-points-rarity <path>', 'Path to booster points rarity', '../src/booster-points-rarity.json')
     .action(async (probsTier1, probsTier2, probsTier3, options) =>{
 
         const readRarityFile = (path: string): any[] => {
@@ -68,6 +98,36 @@ program
 
         await initializeRarity(probsTier1Object, probsTier2Object, probsTier3Object, fighter_rarity, booster_shield_rarity, booster_points_rarity)
     })
+
+program
+    .command('create-fighter')
+    .argument('<fighter_type>', 'Type of fighter (e.g., Boxing, MuayThai, Taekwondo, Karate, Judo, Wrestling, BrazilianJiuJitsu, Sambo)')
+    .action(async (fighterType) => {
+        const fighterTypeKey = fighterType as FighterTypeKeys;
+
+        //@ts-ignore
+        const fighterIndex = Object.keys(fighterTypeMapping).find(key => fighterTypeMapping[key] === fighterType);
+
+        if (fighterIndex === undefined) {
+            console.error('Invalid fighter type provided.');
+            return;
+        }
+        // Construct the path to the metrics JSON file
+        const metricsFilePath = `../srcfighter_base_metrics/${fighterType.toLowerCase()}-metrics.json`;
+
+        // Read and parse the metrics JSON file
+        let metrics;
+        try {
+            const metricsData = fs.readFileSync(metricsFilePath, 'utf-8');
+            metrics = JSON.parse(metricsData);
+        } catch (error) {
+            console.error(`Error reading or parsing metrics file for ${fighterType}:`, error);
+            return;
+        }
+
+        await createFighterBase(parseInt(fighterIndex), metrics, fighterTypes[fighterTypeKey]);
+    });
+
 
 program
     .command('create-competition').action(async () =>{

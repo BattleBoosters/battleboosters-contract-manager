@@ -1,27 +1,27 @@
 [
   {
     "common": {
-      "value": { "min": 100, "max": 150 }
+      "value": { "min": 6500, "max": 11500 }
     }
   },
   {
     "uncommon": {
-      "value": { "min": 150, "max": 200 }
-    },
+      "value": { "min": 12500, "max": 17500 }
+    }
   },
   {
     "rare": {
-      "value": { "min": 200, "max": 250 }
+      "value": { "min": 20000, "max": 25000 }
     }
   },
   {
     "epic": {
-      "value": { "min": 250, "max": 300 }
+      "value": { "min": 30000, "max": 35000 }
     }
   },
   {
     "legendary": {
-      "value": { "min": 300, "max": 350 }
+      "value": { "min": 45000, "max": 50000 }
     }
   }
 ]

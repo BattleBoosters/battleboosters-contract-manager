@@ -1,0 +1,118 @@
+{
+  "takedownsAttempted": {
+    "points": 492,
+    "damage": 0
+  },
+  "takedownsLanded": {
+    "points": 4482,
+    "damage": 1237
+  },
+  "takedownsSlam": {
+    "points": 0,
+    "damage": 0
+  },
+  "sigClinchHeadStrikesAttempted": {
+    "points": 205,
+    "damage": 0
+  },
+  "sigClinchHeadStrikesLanded": {
+    "points": 1864,
+    "damage": 2401
+  },
+  "sigClinchBodyStrikesAttempted": {
+    "points": 321,
+    "damage": 0
+  },
+  "sigClinchBodyStrikesLanded": {
+    "points": 2149,
+    "damage": 2769
+  },
+  "sigClinchLegStrikesAttempted": {
+    "points": 4883,
+    "damage": 0
+  },
+  "sigClinchLegStrikesLanded": {
+    "points": 10642,
+    "damage": 10283
+  },
+  "knockDowns": {
+    "points": 8267,
+    "damage": 47926
+  },
+  "sigDistanceHeadStrikesAttempted": {
+    "points": 11,
+    "damage": 0
+  },
+  "sigDistanceHeadStrikesLanded": {
+    "points": 99,
+    "damage": 254
+  },
+  "sigDistanceBodyStrikesAttempted": {
+    "points": 65,
+    "damage": 0
+  },
+  "sigDistanceBodyStrikesLanded": {
+    "points": 289,
+    "damage": 930
+  },
+  "sigDistanceLegStrikesAttempted": {
+    "points": 87,
+    "damage": 0
+  },
+  "sigDistanceLegStrikesLanded": {
+    "points": 312,
+    "damage": 402
+  },
+  "reversals": {
+    "points": 22430,
+    "damage": 0
+  },
+  "submissions": {
+    "points": 13536,
+    "damage": 21799
+  },
+  "timeInControl": {
+    "points": 38,
+    "damage": 0
+  },
+  "sigGroundHeadStrikesAttempted": {
+    "points": 117,
+    "damage": 0
+  },
+  "sigGroundHeadStrikesLanded": {
+    "points": 994,
+    "damage": 1601
+  },
+  "sigGroundBodyStrikesAttempted": {
+    "points": 2236,
+    "damage": 0
+  },
+  "sigGroundBodyStrikesLanded": {
+    "points": 7144,
+    "damage": 3682
+  },
+  "sigGroundLegStrikesAttempted": {
+    "points": 5434,
+    "damage": 0
+  },
+  "sigGroundLegStrikesLanded": {
+    "points": 13902,
+    "damage": 6716
+  },
+  "advanceToHalfGuard": {
+    "points": 0,
+    "damage": 0
+  },
+  "advanceToSide": {
+    "points": 0,
+    "damage": 0
+  },
+  "advanceToMount": {
+    "points": 0,
+    "damage": 0
+  },
+  "advanceToBack": {
+    "points": 0,
+    "damage": 0
+  }
+}

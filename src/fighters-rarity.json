@@ -1,32 +1,32 @@
 [
   {
     "common": {
-      "power": { "min": 100, "max": 150 },
-      "lifespan": { "min": 100, "max": 150 }
+      "power": { "min": 650, "max": 1150 },
+      "lifespan": { "min": 6500, "max": 11500 }
     }
   },
   {
     "uncommon": {
-      "power": { "min": 150, "max": 200 },
-      "lifespan": { "min": 150, "max": 200 }
-    },
+      "power": { "min": 1250, "max": 1750 },
+      "lifespan": { "min": 12500, "max": 17500 }
+    }
   },
   {
     "rare": {
-      "power": { "min": 200, "max": 250 },
-      "lifespan": { "min": 200, "max": 250 }
+      "power": { "min": 2000, "max": 2500 },
+      "lifespan": { "min": 20000, "max": 25000 }
     }
   },
   {
     "epic": {
-      "power": { "min": 250, "max": 300 },
-      "lifespan": { "min": 250, "max": 300 }
+      "power": { "min": 3000, "max": 3500 },
+      "lifespan": { "min": 30000, "max": 35000 }
     }
   },
   {
     "legendary": {
-      "power": { "min": 300, "max": 350 },
-      "lifespan": { "min": 300, "max": 350 }
+      "power": { "min": 4500, "max": 5000 },
+      "lifespan": { "min": 45000, "max": 50000 }
     }
   }
 ]
