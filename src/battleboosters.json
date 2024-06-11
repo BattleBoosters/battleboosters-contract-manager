@@ -45,16 +45,12 @@
           "type": "publicKey"
         },
         {
-          "name": "nftFighterPackPrice",
+          "name": "nftFighterPrice",
           "type": "u64"
         },
         {
           "name": "boosterPrice",
           "type": "u64"
-        },
-        {
-          "name": "fighterPackAmount",
-          "type": "u8"
         },
         {
           "name": "env",
@@ -1464,6 +1460,10 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
             "name": "orderNonce",
             "docs": [
               "Represent the nonce of the current amount orders the player have created"
@@ -1515,7 +1515,7 @@
             "type": "publicKey"
           },
           {
-            "name": "fighterPackPrice",
+            "name": "fighterPrice",
             "docs": [
               "The price in USD of each NFT fighter pack"
             ],
@@ -1527,13 +1527,6 @@
               "The price in USD of each NFT booster"
             ],
             "type": "u64"
-          },
-          {
-            "name": "fighterPackAmount",
-            "docs": [
-              "The amount of fighters contained on each NFT fighter pack"
-            ],
-            "type": "u8"
           },
           {
             "name": "isInitialized",

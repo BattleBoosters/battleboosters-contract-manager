@@ -45,7 +45,7 @@
           "type": "publicKey"
         },
         {
-          "name": "nftFighterPackPrice",
+          "name": "nftFighterPrice",
           "type": "u64"
         },
         {
@@ -53,10 +53,33 @@
           "type": "u64"
         },
         {
-          "name": "fighterPackAmount",
-          "type": "u8"
+          "name": "env",
+          "type": {
+            "defined": "Env"
+          }
         }
       ]
+    },
+    {
+      "name": "updateProgram",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "initializeRarity",
@@ -294,7 +317,7 @@
           "isSigner": false
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         },
@@ -333,7 +356,7 @@
           "isSigner": false
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         },
@@ -355,6 +378,46 @@
           "type": {
             "defined": "FightMetrics"
           }
+        }
+      ]
+    },
+    {
+      "name": "updateRandomnessMysteryBox",
+      "accounts": [
+        {
+          "name": "creator",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "program",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "mysteryBox",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "randomnessAccountData",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "mysteryBoxNonce",
+          "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         }
       ]
     },
@@ -392,43 +455,9 @@
           "isSigner": false
         },
         {
-          "name": "bankEscrow",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "priceFeed",
           "isMut": false,
           "isSigner": false
-        },
-        {
-          "name": "randomnessAccountData",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Token program. Used to transfer funds to the randomness escrow."
-          ]
-        },
-        {
-          "name": "associatedTokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana Associated Token program. Used to create the TokenAccount for the randomness escrow."
-          ]
         },
         {
           "name": "rarity",
@@ -437,13 +466,17 @@
           "docs": [
             "Rarity PDA"
           ]
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
+          ]
         }
       ],
       "args": [
-        {
-          "name": "bankEscrowBump",
-          "type": "u8"
-        },
         {
           "name": "requests",
           "type": {
@@ -453,93 +486,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "adminAirdropCollectorPack",
-      "docs": [
-        "ONLY FOR TEST PURPOSE"
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "recipient",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "program",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "playerAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "mysteryBox",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "rarity",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "Rarity PDA"
-          ]
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "The Solana System program. Used to allocate space on-chain for the randomness_request account."
-          ]
-        }
-      ],
-      "args": [
-        {
-          "name": "boosterMintAlowance",
-          "type": "u64"
-        },
-        {
-          "name": "fighterMintAllowance",
-          "type": "u64"
-        },
-        {
-          "name": "championsPassMintAllowance",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "adminSetRandomness",
-      "docs": [
-        "ONLY FOR TEST PURPOSE"
-      ],
-      "accounts": [
-        {
-          "name": "signer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "program",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "event",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": []
     },
     {
       "name": "createMintableGameAsset",
@@ -595,6 +541,10 @@
         {
           "name": "mintableGameAssetLinkNonce",
           "type": "u64"
+        },
+        {
+          "name": "playerPubkey",
+          "type": "publicKey"
         },
         {
           "name": "request",
@@ -899,6 +849,11 @@
           "isSigner": false
         },
         {
+          "name": "priceFeed",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -993,7 +948,7 @@
           "isOptional": true
         },
         {
-          "name": "fighter",
+          "name": "fighterBase",
           "isMut": true,
           "isSigner": false
         }
@@ -1009,62 +964,6 @@
     }
   ],
   "accounts": [
-    {
-      "name": "EventLinkData",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "eventPubkey",
-            "docs": [
-              "`Event` PDA public key for direct ref"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "eventNonceTracker",
-            "docs": [
-              "Tracker to link the `EventLink` PDA to the `Event` PDA"
-            ],
-            "type": "u64"
-          },
-          {
-            "name": "championsPassPubkey",
-            "docs": [
-              "Ensure a champions pass have been used for `MainCard` access",
-              "`champions_pass_asset` PDA public key for direct ref"
-            ],
-            "type": {
-              "option": "publicKey"
-            }
-          },
-          {
-            "name": "championsPassNonceTracker",
-            "docs": [
-              "Tracker to link the `champions_pass` PDA"
-            ],
-            "type": {
-              "option": "u64"
-            }
-          },
-          {
-            "name": "isConsumed",
-            "docs": [
-              "Prevents the player to claim multiple time the rewards",
-              "If this occurs, it should close and refund the creator of the EventLink PDA?"
-            ],
-            "type": "bool"
-          },
-          {
-            "name": "isInitialized",
-            "docs": [
-              "Prevent accidental multiple initializations of a PDA"
-            ],
-            "type": "bool"
-          }
-        ]
-      }
-    },
     {
       "name": "EventData",
       "type": {
@@ -1121,20 +1020,74 @@
             "type": "u64"
           },
           {
-            "name": "randomness",
-            "docs": [
-              "Represent the randomness, will be used to derive child randomness for collecting mystery box"
-            ],
-            "type": {
-              "option": "bytes"
-            }
-          },
-          {
             "name": "nonce",
             "docs": [
               "Nonce of the `event`"
             ],
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EventLinkData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "eventPubkey",
+            "docs": [
+              "`Event` PDA public key for direct ref"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "eventNonceTracker",
+            "docs": [
+              "Tracker to link the `EventLink` PDA to the `Event` PDA"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "rankNonce",
+            "docs": [
+              "User rank nonce to recreate the pda"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "championsPassPubkey",
+            "docs": [
+              "Ensure a champions pass have been used for `MainCard` access",
+              "`champions_pass_asset` PDA public key for direct ref"
+            ],
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "championsPassNonceTracker",
+            "docs": [
+              "Tracker to link the `champions_pass` PDA"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "isConsumed",
+            "docs": [
+              "Prevents the player to claim multiple time the rewards",
+              "If this occurs, it should close and refund the creator of the EventLink PDA?"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "isInitialized",
+            "docs": [
+              "Prevent accidental multiple initializations of a PDA"
+            ],
+            "type": "bool"
           }
         ]
       }
@@ -1269,6 +1222,24 @@
             }
           },
           {
+            "name": "fighterLinkUsed",
+            "docs": [
+              "The `Pubkey` of the fighter link used"
+            ],
+            "type": {
+              "option": "publicKey"
+            }
+          },
+          {
+            "name": "fighterLinkUsedNonceTracker",
+            "docs": [
+              "Tracker to link the `FighterLink` PDA to the `FightCardLink` PDA"
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
             "name": "shieldBoosterUsed",
             "docs": [
               "The `Pubkey` of the booster used"
@@ -1332,7 +1303,7 @@
       }
     },
     {
-      "name": "FighterData",
+      "name": "FighterBaseData",
       "type": {
         "kind": "struct",
         "fields": [
@@ -1463,12 +1434,8 @@
           },
           {
             "name": "randomnessAccount",
-            "type": "publicKey"
-          },
-          {
-            "name": "randomness",
             "type": {
-              "option": "bytes"
+              "option": "publicKey"
             }
           },
           {
@@ -1492,6 +1459,10 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
           {
             "name": "orderNonce",
             "docs": [
@@ -1531,19 +1502,20 @@
           {
             "name": "mintableGameAssetNonce",
             "docs": [
-              "Represent the current amount of mintable game asset pack"
+              "Represent the current amount of mintable game asset"
             ],
             "type": "u64"
           },
           {
             "name": "adminPubkey",
             "docs": [
+              "Represent the current amount in circulation of game assets",
               "The authority which are allowed to administrate the contract"
             ],
             "type": "publicKey"
           },
           {
-            "name": "fighterPackPrice",
+            "name": "fighterPrice",
             "docs": [
               "The price in USD of each NFT fighter pack"
             ],
@@ -1555,13 +1527,6 @@
               "The price in USD of each NFT booster"
             ],
             "type": "u64"
-          },
-          {
-            "name": "fighterPackAmount",
-            "docs": [
-              "The amount of fighters contained on each NFT fighter pack"
-            ],
-            "type": "u8"
           },
           {
             "name": "isInitialized",
@@ -1583,6 +1548,12 @@
               "Bank bump"
             ],
             "type": "u8"
+          },
+          {
+            "name": "env",
+            "type": {
+              "defined": "Env"
+            }
           }
         ]
       }
@@ -1728,7 +1699,7 @@
             "type": "u16"
           },
           {
-            "name": "takedownsSlam",
+            "name": "takedownsSlams",
             "type": "u16"
           },
           {
@@ -1876,10 +1847,6 @@
             "type": "u32"
           },
           {
-            "name": "energy",
-            "type": "u32"
-          },
-          {
             "name": "damage",
             "type": "u32"
           }
@@ -1946,7 +1913,7 @@
             }
           },
           {
-            "name": "knockdowns",
+            "name": "knockDowns",
             "type": {
               "defined": "Metrics"
             }
@@ -2048,7 +2015,7 @@
             }
           },
           {
-            "name": "advanceToSlide",
+            "name": "advanceToSide",
             "type": {
               "defined": "Metrics"
             }
@@ -2178,30 +2145,15 @@
       }
     },
     {
-      "name": "FightCardResult",
+      "name": "Env",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "KoTko"
+            "name": "Dev"
           },
           {
-            "name": "Decision"
-          },
-          {
-            "name": "Submission"
-          },
-          {
-            "name": "Disqualification"
-          },
-          {
-            "name": "NoContest"
-          },
-          {
-            "name": "Draw"
-          },
-          {
-            "name": "InternalCancellation"
+            "name": "Prod"
           }
         ]
       }
@@ -2532,6 +2484,35 @@
           }
         ]
       }
+    },
+    {
+      "name": "FightCardResult",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "KoTko"
+          },
+          {
+            "name": "Decision"
+          },
+          {
+            "name": "Submission"
+          },
+          {
+            "name": "Disqualification"
+          },
+          {
+            "name": "NoContest"
+          },
+          {
+            "name": "Draw"
+          },
+          {
+            "name": "InternalCancellation"
+          }
+        ]
+      }
     }
   ],
   "events": [
@@ -2730,7 +2711,7 @@
     {
       "code": 6030,
       "name": "RandomnessIsNone",
-      "msg": "Randomness is required to collect your reward. Please request randomness and try again."
+      "msg": "Randomness is required. Please request randomness and try again."
     },
     {
       "code": 6031,
@@ -2756,6 +2737,11 @@
       "code": 6035,
       "name": "RandomnessNotResolved",
       "msg": "Randomness is not yet resolved"
+    },
+    {
+      "code": 6036,
+      "name": "RandomnessNotMatchingProvided",
+      "msg": "Wrong randomness account provided"
     }
   ]
 }

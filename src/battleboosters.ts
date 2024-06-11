@@ -45,16 +45,12 @@ export type Battleboosters = {
           "type": "publicKey"
         },
         {
-          "name": "nftFighterPackPrice",
+          "name": "nftFighterPrice",
           "type": "u64"
         },
         {
           "name": "boosterPrice",
           "type": "u64"
-        },
-        {
-          "name": "fighterPackAmount",
-          "type": "u8"
         },
         {
           "name": "env",
@@ -1464,6 +1460,10 @@ export type Battleboosters = {
         "kind": "struct",
         "fields": [
           {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
             "name": "orderNonce",
             "docs": [
               "Represent the nonce of the current amount orders the player have created"
@@ -1515,7 +1515,7 @@ export type Battleboosters = {
             "type": "publicKey"
           },
           {
-            "name": "fighterPackPrice",
+            "name": "fighterPrice",
             "docs": [
               "The price in USD of each NFT fighter pack"
             ],
@@ -1527,13 +1527,6 @@ export type Battleboosters = {
               "The price in USD of each NFT booster"
             ],
             "type": "u64"
-          },
-          {
-            "name": "fighterPackAmount",
-            "docs": [
-              "The amount of fighters contained on each NFT fighter pack"
-            ],
-            "type": "u8"
           },
           {
             "name": "isInitialized",
@@ -2800,16 +2793,12 @@ export const IDL: Battleboosters = {
           "type": "publicKey"
         },
         {
-          "name": "nftFighterPackPrice",
+          "name": "nftFighterPrice",
           "type": "u64"
         },
         {
           "name": "boosterPrice",
           "type": "u64"
-        },
-        {
-          "name": "fighterPackAmount",
-          "type": "u8"
         },
         {
           "name": "env",
@@ -4219,6 +4208,10 @@ export const IDL: Battleboosters = {
         "kind": "struct",
         "fields": [
           {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
             "name": "orderNonce",
             "docs": [
               "Represent the nonce of the current amount orders the player have created"
@@ -4270,7 +4263,7 @@ export const IDL: Battleboosters = {
             "type": "publicKey"
           },
           {
-            "name": "fighterPackPrice",
+            "name": "fighterPrice",
             "docs": [
               "The price in USD of each NFT fighter pack"
             ],
@@ -4282,13 +4275,6 @@ export const IDL: Battleboosters = {
               "The price in USD of each NFT booster"
             ],
             "type": "u64"
-          },
-          {
-            "name": "fighterPackAmount",
-            "docs": [
-              "The amount of fighters contained on each NFT fighter pack"
-            ],
-            "type": "u8"
           },
           {
             "name": "isInitialized",
