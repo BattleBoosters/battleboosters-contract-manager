@@ -113,7 +113,7 @@ program
             return;
         }
         // Construct the path to the metrics JSON file
-        const metricsFilePath = `../srcfighter_base_metrics/${fighterType.toLowerCase()}-metrics.json`;
+        const metricsFilePath = `../src/fighter_base_metrics/${fighterType.toLowerCase()}-metrics.json`;
 
         // Read and parse the metrics JSON file
         let metrics;

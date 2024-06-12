@@ -26,7 +26,6 @@ const initializeProgram = async (fighter_price: number, booster_price: number, e
                 admin_account.publicKey,
                 new BN(fighter_price),
                 new BN(booster_price),
-                5,
                 env
             )
             .accounts({

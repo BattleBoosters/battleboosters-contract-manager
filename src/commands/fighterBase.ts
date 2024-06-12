@@ -38,6 +38,7 @@ const createFighterBase = async (fighterIndex: number, metrics: Metrics, fighter
             .rpc();
 
         console.log(tx)
+        console.log(`fighter type created successfully`)
     } catch (e) {
         console.error("Error:", e);
     }
