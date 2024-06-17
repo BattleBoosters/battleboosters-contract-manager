@@ -79,4 +79,31 @@ const initializeRarity = async (probs_tier_1: [], probs_tier_2: [], probs_tier_3
     }
 }
 
-export { initializeProgram, initializeRarity }
+const forceUpdateProgram = async () => {
+    const wallet = loadWallet();
+    const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
+    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const {
+        admin_account,
+        rarity_pda,
+        program_pda
+    } = initAccounts(program);
+
+    try {
+        const tx = await program.methods
+            .updateProgram()
+            .accounts({
+                creator: admin_account.publicKey,
+                program: program_pda,
+                systemProgram: anchor.web3.SystemProgram.programId,
+            })
+            .signers([admin_account]) // Include new_account as a signer
+            .rpc()
+
+        console.log("Program env updated : ", tx)
+    }catch (e){
+        console.log(e)
+    }
+}
+
+export { initializeProgram, initializeRarity, forceUpdateProgram }

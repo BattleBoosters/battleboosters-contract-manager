@@ -15,7 +15,7 @@ import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
 import {pointsCalculator} from "./commands/pointsCalculator.js";
 import {ranksCalculator} from "./commands/ranksCalculator.js";
-import {initializeProgram, initializeRarity} from "./commands/initialize.js";
+import {forceUpdateProgram, initializeProgram, initializeRarity} from "./commands/initialize.js";
 import {createFighterBase} from "./commands/fighterBase.js";
 import path from 'path';
 
@@ -132,6 +132,11 @@ program
 program
     .command('create-competition').action(async () =>{
     await createCompetition()
+})
+
+program
+    .command('force-update-program').action(async () =>{
+    await forceUpdateProgram()
 })
 
 
