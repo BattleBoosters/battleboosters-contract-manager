@@ -6,8 +6,6 @@ import {Battleboosters} from "../battleboosters";
 
 // Function to load the wallet from a JSON file
 export function loadWallet(): anchor.Wallet {
-    console.log("process.env.WALLET_PATH")
-    console.log(process.env.WALLET_PATH)
     const keypairJSON = fs.readFileSync(process.env.WALLET_PATH!, 'utf-8');
     const keypairData = JSON.parse(keypairJSON);
     const keypair = Keypair.fromSecretKey(Uint8Array.from(keypairData));
