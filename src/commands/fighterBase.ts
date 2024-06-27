@@ -5,12 +5,11 @@ import {Battleboosters} from "../battleboosters";
 import connectToDatabase from "../utils/mongodb.js";
 import Event from "../models/Event.js";
 import {Transaction} from "@solana/web3.js";
-const { BN } = anchor
 
 const createFighterBase = async (fighterIndex: number, metrics: Metrics, fighterType: any) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const { admin_account, program_pda } = initAccounts(program);
 
     try {
@@ -26,14 +25,15 @@ const createFighterBase = async (fighterIndex: number, metrics: Metrics, fighter
                 program.programId
             );
 
+        const accounts = {
+            creator: admin_account.publicKey,
+            program: program_pda,
+            fighterBase: fighterPDA,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        }
         const tx = await program.methods
             .createFighter(fighterType, metrics)
-            .accounts({
-                creator: admin_account.publicKey,
-                program: program_pda,
-                fighterBase: fighterPDA,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
+            .accounts(accounts)
             .signers([admin_account])
             .rpc();
 

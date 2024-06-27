@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+require('dotenv').config();
 import {program} from "commander"
 import { start } from "./commands/start.js"
 import {createCompetition, updateCompetition} from "./commands/competition.js"

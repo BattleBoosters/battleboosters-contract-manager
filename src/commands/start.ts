@@ -1,16 +1,15 @@
 import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
 import anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
-const {BN} = anchor;
+
 
 const start = async () => {
 
         const wallet = loadWallet();
         const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-        const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+        const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
 
         const {
-            metadata_pubkey,
             bank_pda,
             bank_bump,
             program_pda,
@@ -30,7 +29,7 @@ const start = async () => {
                 [
                     Buffer.from('BattleBoosters'),
                     Buffer.from('event'),
-                    new BN(event_id).toBuffer('le', 8),
+                    new anchor.BN(event_id).toBuffer('le', 8),
                 ],
                 program.programId
             );

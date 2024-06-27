@@ -1,6 +1,5 @@
 import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
 import anchor from "@coral-xyz/anchor";
-const {BN} = anchor;
 import {Battleboosters} from "../battleboosters";
 import connectToDatabase from '../utils/mongodb.js';
 import axios from "axios";
@@ -12,7 +11,7 @@ import {Transaction} from "@solana/web3.js";
 const createEvent = async (tournament_type: TournamentType, rank_rewards: RankReward[]) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
 
     const {
         admin_account,
@@ -30,8 +29,8 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
         let updated_rank_rewards: RankReward[] = []
         rank_rewards.map(el => {
             updated_rank_rewards.push({
-                startRank: new BN(el.startRank),
-                endRank: el.endRank ? new BN(el.endRank): null,
+                startRank: new anchor.BN(el.startRank),
+                endRank: el.endRank ? new anchor.BN(el.endRank): null,
                 prizeAmount: el.prizeAmount,
                 fighterAmount: el.fighterAmount,
                 boosterAmount: el.boosterAmount,
@@ -122,19 +121,20 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
                         // Create transaction and instruction
                         //let tx = new Transaction();
+                        const accounts = {
+                            creator: admin_account.publicKey,
+                            program: program_pda,
+                            event: event_pda,
+                            systemProgram: anchor.web3.SystemProgram.programId,
+                        };
                         const event_instruction = await program.methods
                             .createNewEvent(
-                                new BN(existingEvent.dateStart),
-                                new BN(existingEvent.dateEnd),
+                                new anchor.BN(existingEvent.dateStart),
+                                new anchor.BN(existingEvent.dateEnd),
                                 tournament_type,
                                 updated_rank_rewards
                             )
-                            .accounts({
-                                creator: admin_account.publicKey,
-                                program: program_pda,
-                                event: event_pda,
-                                systemProgram: anchor.web3.SystemProgram.programId,
-                            }).instruction();
+                            .accounts(accounts).instruction();
 
                         instructions.push(event_instruction);
 
@@ -173,23 +173,25 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 
                             const fightCardData = {
                                 eventPubkey: event_pda,
-                                eventNonceTracker: new BN(0),
+                                eventNonceTracker: new anchor.BN(0),
                                 titleFight: fightCard.title,
                                 fighterBlue: null,
                                 fighterRed: null,
                                 fightDuration: null,
                                 result: null,
                                 winner: null,
+                                nonce: 0
                             };
+                            const accounts = {
+                                creator: admin_account.publicKey,
+                                program: program_pda,
+                                event: event_pda,
+                                fightCard: fight_card_pda,
+                                systemProgram: anchor.web3.SystemProgram.programId,
+                            }
                             const fight_card_instruction = await program.methods
                                 .createNewFightCard(fightCardData)
-                                .accounts({
-                                    creator: admin_account.publicKey,
-                                    program: program_pda,
-                                    event: event_pda,
-                                    fightCard: fight_card_pda,
-                                    systemProgram: anchor.web3.SystemProgram.programId,
-                                }).instruction()
+                                .accounts(accounts).instruction()
                             fightCardNonce++;
 
                             // @ts-ignore
@@ -274,7 +276,7 @@ const createEvent = async (tournament_type: TournamentType, rank_rewards: RankRe
 const updateEvent = async (eventKey: string, newStartDate: number | undefined, newEndDate: number | undefined, tournament_type: TournamentType | undefined, rank_rewards: RankReward[]) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const { admin_account, program_pda } = initAccounts(program);
 
     try {
@@ -283,8 +285,8 @@ const updateEvent = async (eventKey: string, newStartDate: number | undefined, n
         let updated_rank_rewards: RankReward[] = []
         rank_rewards.map(el => {
             updated_rank_rewards.push({
-                startRank: new BN(el.startRank),
-                endRank: el.endRank ? new BN(el.endRank): null,
+                startRank: new anchor.BN(el.startRank),
+                endRank: el.endRank ? new anchor.BN(el.endRank): null,
                 prizeAmount: el.prizeAmount,
                 fighterAmount: el.fighterAmount,
                 boosterAmount: el.boosterAmount,
@@ -313,20 +315,21 @@ const updateEvent = async (eventKey: string, newStartDate: number | undefined, n
                 // );
                 let event_account_to_pubkey = new anchor.web3.PublicKey(eventKey);
                 const event_account_data = await program.account.eventData.fetch(event_account_to_pubkey)
+                const accounts = {
+                    creator: admin_account.publicKey,
+                    program: program_pda,
+                    event: event_account_to_pubkey,
+                    systemProgram: anchor.web3.SystemProgram.programId,
+                }
 
                 const tx = await program.methods
                     .updateEvent(
-                        newStartDate ? new BN(newStartDate) : event_account_data.startDate,
-                        newEndDate ? new BN(newEndDate): event_account_data.endDate,
+                        newStartDate ? new anchor.BN(newStartDate) : event_account_data.startDate,
+                        newEndDate ? new anchor.BN(newEndDate): event_account_data.endDate,
                         tournament_type? tournament_type : event_account_data.tournamentType,
                         updated_rank_rewards.length > 0 ? updated_rank_rewards : event_account_data.rankRewards
                     )
-                    .accounts({
-                        creator: admin_account.publicKey,
-                        program: program_pda,
-                        event: event_account_to_pubkey,
-                        systemProgram: anchor.web3.SystemProgram.programId,
-                    })
+                    .accounts(accounts)
                     .signers([admin_account])
                     .rpc();
 

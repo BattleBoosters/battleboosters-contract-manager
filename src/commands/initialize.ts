@@ -2,13 +2,12 @@ import {RankReward, TournamentType, Env, FighterRarityType, BoosterRarityType} f
 import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
 import anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
-import connectToDatabase from "@utils/mongodb";
-const { BN } = anchor
+
 
 const initializeProgram = async (fighter_price: number, booster_price: number, env: Env) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         program_pda,
@@ -19,22 +18,23 @@ const initializeProgram = async (fighter_price: number, booster_price: number, e
     } = initAccounts(program);
 
     try {
+        const accounts = {
+            creator: admin_account.publicKey,
+            program: program_pda,
+            bank: bank_pda,
+            mintAuthority: mint_authority_account,
+            //systemProgram: anchor.web3.SystemProgram.programId,
+        }
         const tx = await program.methods
             .initialize(
                 authority_bump,
                 bank_bump,
                 admin_account.publicKey,
-                new BN(fighter_price),
-                new BN(booster_price),
+                new anchor.BN(fighter_price),
+                new anchor.BN(booster_price),
                 env
             )
-            .accounts({
-                creator: admin_account.publicKey,
-                program: program_pda,
-                bank: bank_pda,
-                mintAuthority: mint_authority_account,
-                //systemProgram: anchor.web3.SystemProgram.programId,
-            })
+            .accounts(accounts)
             .signers([admin_account]) // Include new_account as a signer
             .rpc();
 
@@ -47,13 +47,19 @@ const initializeProgram = async (fighter_price: number, booster_price: number, e
 const initializeRarity = async (probs_tier_1: [], probs_tier_2: [], probs_tier_3: [], fighter_rarity: FighterRarityType[], booster_shield_rarity: BoosterRarityType[], booster_points_rarity: BoosterRarityType[], ) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         rarity_pda
     } = initAccounts(program);
 
     try {
+        const accounts = {
+            creator: admin_account.publicKey,
+            rarity: rarity_pda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        }
+
         const tx = await program.methods
             .initializeRarity(
                 fighter_rarity,
@@ -65,11 +71,7 @@ const initializeRarity = async (probs_tier_1: [], probs_tier_2: [], probs_tier_3
                     { tier3: [Buffer.from(probs_tier_3)] }, // Early Prelims
                 ]
             )
-            .accounts({
-                creator: admin_account.publicKey,
-                rarity: rarity_pda,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
+            .accounts(accounts)
             .signers([admin_account]) // Include new_account as a signer
             .rpc();
 
@@ -82,7 +84,7 @@ const initializeRarity = async (probs_tier_1: [], probs_tier_2: [], probs_tier_3
 const forceUpdateProgram = async () => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         rarity_pda,
@@ -90,13 +92,15 @@ const forceUpdateProgram = async () => {
     } = initAccounts(program);
 
     try {
+        const accounts = {
+            creator: admin_account.publicKey,
+            program: program_pda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        }
+
         const tx = await program.methods
             .updateProgram()
-            .accounts({
-                creator: admin_account.publicKey,
-                program: program_pda,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
+            .accounts(accounts)
             .signers([admin_account]) // Include new_account as a signer
             .rpc()
 

@@ -4,14 +4,13 @@ import {Battleboosters} from "../battleboosters";
 import {RankReward, TournamentType} from "../interfaces/interfaces";
 import connectToDatabase from '../utils/mongodb.js';
 import axios from "axios";
-const {BN} = anchor;
 import Event from '../models/Event.js';
 
 const determineRankingPoints = async (event_key: string) => {
 
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         program_pda,

@@ -6,12 +6,12 @@ import connectToDatabase from "../utils/mongodb.js";
 import Event from "../models/Event.js";
 import Player from "../models/Player.js"
 import {Transaction} from "@solana/web3.js";
-const { BN } = anchor
+
 
 const pointsCalculator = async (eventKey: string) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const { admin_account, program_pda } = initAccounts(program);
 
     try {
@@ -55,7 +55,7 @@ const pointsCalculator = async (eventKey: string) => {
         const rankFetchPromises = [];
         for (let rank = 0; rank < event_account_data.rankNonce.toNumber(); rank++) {
             const [rank_pda] = anchor.web3.PublicKey.findProgramAddressSync(
-                [Buffer.from('BattleBoosters'), Buffer.from('rank'), event_account.toBuffer(), Buffer.from(new BN(rank).toArray("le", 8))],
+                [Buffer.from('BattleBoosters'), Buffer.from('rank'), event_account.toBuffer(), Buffer.from(new anchor.BN(rank).toArray("le", 8))],
                 program.programId
             );
             rankFetchPromises.push(program.account.rankData.fetch(rank_pda).then(rank_data => ({ rank_data, rank_pda })));
@@ -129,23 +129,23 @@ const pointsCalculator = async (eventKey: string) => {
                                     ],
                                     program.programId
                                 );
-
+                            const accounts = {
+                                signer: wallet.publicKey,
+                                event: event_account,
+                                rank: rank_pda,
+                                playerAccount: player_account_pda,
+                                fightCard: fightCardPda,
+                                fightCardLink: fight_card_link_account,
+                                // @ts-ignore
+                                fighterAsset: fight_card_link_data.fighterUsed,
+                                // @ts-ignore
+                                fighterAssetLink: fight_card_link_data.fighterLinkUsed,
+                                pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
+                                shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
+                                fighterBase: fighter_pda,
+                            }
                             let determineRankInstruction = await program.methods.determineRankingPoints(fighterTypeObject)
-                                .accounts({
-                                    signer: wallet.publicKey,
-                                    event: event_account,
-                                    rank: rank_pda,
-                                    playerAccount: player_account_pda,
-                                    fightCard: fightCardPda,
-                                    fightCardLink: fight_card_link_account,
-                                    // @ts-ignore
-                                    fighterAsset: fight_card_link_data.fighterUsed,
-                                    // @ts-ignore
-                                    fighterAssetLink: fight_card_link_data.fighterLinkUsed,
-                                    pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed,
-                                    shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed,
-                                    fighterBase: fighter_pda,
-                                }).instruction();
+                                .accounts(accounts).instruction();
 
                             // // @ts-ignore
                             // tx.add(determineRankInstruction);

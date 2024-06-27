@@ -5,12 +5,11 @@ import {Battleboosters} from "../battleboosters";
 import connectToDatabase from "../utils/mongodb.js";
 import Event from "../models/Event.js";
 import {Transaction} from "@solana/web3.js";
-const { BN } = anchor
 
 const ranksCalculator = async (eventKey: string) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const { admin_account, program_pda } = initAccounts(program);
 
     try {
@@ -41,7 +40,7 @@ const ranksCalculator = async (eventKey: string) => {
         const rankFetchPromises = [];
         for (let rank = 0; rank < event_account_data.rankNonce.toNumber(); rank++) {
             const [rank_pda] = anchor.web3.PublicKey.findProgramAddressSync(
-                [Buffer.from('BattleBoosters'), Buffer.from('rank'), event_account.toBuffer(), Buffer.from(new BN(rank).toArray("le", 8))],
+                [Buffer.from('BattleBoosters'), Buffer.from('rank'), event_account.toBuffer(), Buffer.from(new anchor.BN(rank).toArray("le", 8))],
                 program.programId
             );
             rankFetchPromises.push(program.account.rankData.fetch(rank_pda).then(rank_data => ({ rank_data, rank_pda })));
@@ -85,13 +84,14 @@ const ranksCalculator = async (eventKey: string) => {
                         playerData.collected = rank_data.isConsumed;
                     }
 
-                    let updateRankInstruction = await program.methods.adminUpdateRank(new BN(rank_number))
-                        .accounts({
-                            signer: admin_account.publicKey,
-                            event: event_account,
-                            rank: rank_pda,
-                            program: program_pda,
-                        }).instruction();
+                    const accounts = {
+                        signer: admin_account.publicKey,
+                        event: event_account,
+                        rank: rank_pda,
+                        program: program_pda,
+                    }
+                    let updateRankInstruction = await program.methods.adminUpdateRank(new anchor.BN(rank_number))
+                        .accounts(accounts).instruction();
 
                     instructions.push(updateRankInstruction);
                 }

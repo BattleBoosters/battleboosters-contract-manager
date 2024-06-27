@@ -1,12 +1,13 @@
 import * as anchor from '@coral-xyz/anchor';
-import { Connection, Keypair } from '@solana/web3.js';
+import {Connection, Keypair, PublicKey} from '@solana/web3.js';
 import fs from 'fs';
-import { MPL_TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import {Battleboosters} from "../battleboosters";
 
 
 // Function to load the wallet from a JSON file
 export function loadWallet(): anchor.Wallet {
+    console.log("process.env.WALLET_PATH")
+    console.log(process.env.WALLET_PATH)
     const keypairJSON = fs.readFileSync(process.env.WALLET_PATH!, 'utf-8');
     const keypairData = JSON.parse(keypairJSON);
     const keypair = Keypair.fromSecretKey(Uint8Array.from(keypairData));
@@ -14,26 +15,23 @@ export function loadWallet(): anchor.Wallet {
 }
 
 // Function to create a program instance
-export function getProgram(wallet: anchor.Wallet, programId: anchor.web3.PublicKey): anchor.Program<Battleboosters> {
+export async function getProgram(wallet: anchor.Wallet, programId: anchor.web3.PublicKey): Promise<anchor.Program<Battleboosters>> {
 
     const connection = new Connection(process.env.PRIVATE_SOLANA_NETWORK_URL!, 'processed');
     const provider = new anchor.AnchorProvider(connection, wallet, {
         preflightCommitment: 'processed',
     });
     anchor.setProvider(provider);
+    //@ts-ignore
+    const programPublicKey = new PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID);
+    const idl = await anchor.Program.fetchIdl(programPublicKey, provider);
+    return new anchor.Program(<Battleboosters>idl);
 
-    // Load the program's IDL
-    const idlJSON = fs.readFileSync('../src/battleboosters.json', 'utf-8');
-    const idl = JSON.parse(idlJSON);
-
-    return new anchor.Program(idl, programId, provider);
 }
 
 export function initAccounts (program: anchor.Program<Battleboosters>) {
 
-    const metadata_pubkey = new anchor.web3.PublicKey(
-        MPL_TOKEN_METADATA_PROGRAM_ID
-    );
+
     const [bank_pda, bank_bump] = anchor.web3.PublicKey.findProgramAddressSync(
         [Buffer.from('BattleBoosters'), Buffer.from('bank')],
         program.programId
@@ -65,7 +63,6 @@ export function initAccounts (program: anchor.Program<Battleboosters>) {
 
     return {
         admin_account,
-        metadata_pubkey,
         bank_pda,
         bank_bump,
         program_pda,

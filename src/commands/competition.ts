@@ -4,14 +4,14 @@ import {Battleboosters} from "../battleboosters";
 import {RankReward, TournamentType} from "../interfaces/interfaces";
 import connectToDatabase from '../utils/mongodb.js';
 import axios from "axios";
-const {BN} = anchor;
 import Event from '../models/Event.js';
+import {PublicKey} from "@solana/web3.js";
 
 const createCompetition = async () => {
 
     const wallet = loadWallet();
-    const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const programId = new PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         program_pda,
@@ -117,7 +117,7 @@ const createCompetition = async () => {
 const updateCompetition = async (event_account: string, time_start: number, time_end: number, tournament_type: TournamentType, rank_rewards: RankReward[]) => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         program_pda,
@@ -130,27 +130,28 @@ const updateCompetition = async (event_account: string, time_start: number, time
         let updated_rank_rewards: RankReward[] = []
         rank_rewards.map(el => {
             updated_rank_rewards.push({
-                startRank: new BN(el.startRank),
-                endRank: el.endRank ? new BN(el.endRank): null,
+                startRank: new anchor.BN(el.startRank),
+                endRank: el.endRank ? new anchor.BN(el.endRank): null,
                 prizeAmount: el.prizeAmount,
                 fighterAmount: el.fighterAmount,
                 boosterAmount: el.boosterAmount,
                 championsPassAmount: el.championsPassAmount
             })
         })
+        const accounts = {
+            creator: admin_account.publicKey,
+            program: program_pda,
+            event: event_account_to_pubkey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        }
         const tx = await program.methods
             .updateEvent(
-                new BN(time_start),
-                new BN(time_end),
+                new anchor.BN(time_start),
+                new anchor.BN(time_end),
                 tournament_type,
                 updated_rank_rewards
             )
-            .accounts({
-                creator: admin_account.publicKey,
-                program: program_pda,
-                event: event_account_to_pubkey,
-                systemProgram: anchor.web3.SystemProgram.programId,
-            })
+            .accounts(accounts)
             .signers([admin_account])
             .rpc();
 

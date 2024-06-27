@@ -4,7 +4,7 @@ import {Battleboosters} from "../battleboosters";
 import {RankReward, TournamentType, Stat, FightStatus} from "../interfaces/interfaces";
 import connectToDatabase from '../utils/mongodb.js';
 import axios from "axios";
-const {BN} = anchor;
+
 import Event from '../models/Event.js';
 import {Transaction} from "@solana/web3.js";
 
@@ -12,7 +12,7 @@ const insertResult = async (event_key: string) => {
 
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
-    const program = getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
         program_pda,
@@ -92,25 +92,27 @@ const insertResult = async (event_key: string) => {
                     // Prepare the data to update fight card on chain
                     let fightCardData = {
                         eventPubkey: event_account,
-                        eventNonceTracker: new BN(0),
+                        eventNonceTracker: new anchor.BN(0),
                         titleFight: false,
                         fighterBlue: null,
                         fighterRed: null,
                         fightDuration: null,
                         result: { noContest: {} },
                         winner: null,
+                        nonce: 0
                     };
 
+                    const accounts = {
+                        creator: admin_account.publicKey,
+                        program: program_pda,
+                        event: event_account,
+                        fightCard: new anchor.web3.PublicKey(fightCard.pubkey), // Make sure this is defined or fetched correctly
+                        systemProgram: anchor.web3.SystemProgram.programId,
+                    }
                     // Create the instruction to update the fight card
                     return program.methods
                         .updateFightCard(fightCardData)
-                        .accounts({
-                            creator: admin_account.publicKey,
-                            program: program_pda,
-                            event: event_account,
-                            fightCard: new anchor.web3.PublicKey(fightCard.pubkey), // Make sure this is defined or fetched correctly
-                            systemProgram: anchor.web3.SystemProgram.programId,
-                        })
+                        .accounts(accounts)
                         .instruction()
                         .then(instruction => {
                             instructions.push(instruction);  // Add the instruction to the batch
@@ -155,13 +157,14 @@ const insertResult = async (event_key: string) => {
 
                 let fightCardData = {
                     eventPubkey: event_account,
-                    eventNonceTracker: new BN(0),
+                    eventNonceTracker: new anchor.BN(0),
                     titleFight: fight.format.regulation.periods == 5 ? true : false,
                     fighterBlue: {},
                     fighterRed: {},
-                    fightDuration: new BN(0),
+                    fightDuration: new anchor.BN(0),
                     result: {},
                     winner: {},
+                    nonce: 0
                 };
 
                 const status = await axios.get(fight.status['$ref']);
@@ -172,7 +175,7 @@ const insertResult = async (event_key: string) => {
                     return
                 }
 
-                fightCardData.fightDuration = new BN((statusData.period * 300) - (300 - statusData.clock))
+                fightCardData.fightDuration = new anchor.BN((statusData.period * 300) - (300 - statusData.clock))
 
                 let fightResult = "no contest"
                 if(statusData.result.name.includes("decision")) {
@@ -298,15 +301,20 @@ const insertResult = async (event_key: string) => {
                     }
                 }))
 
+                const accounts = {
+                    creator: admin_account.publicKey,
+                    program: program_pda,
+                    event: event_account,
+                    fightCard: fight_card_account,
+                    systemProgram: anchor.web3.SystemProgram.programId,
+                }
+
+
+
                 const update_fight_card_instruction = await program.methods
+                    // @ts-ignore
                     .updateFightCard(fightCardData)
-                    .accounts({
-                        creator: admin_account.publicKey,
-                        program: program_pda,
-                        event: event_account,
-                        fightCard: fight_card_account,
-                        systemProgram: anchor.web3.SystemProgram.programId,
-                    }).instruction();
+                    .accounts(accounts).instruction();
 
                 instructions.push(update_fight_card_instruction);
 
