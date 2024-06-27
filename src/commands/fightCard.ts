@@ -324,12 +324,6 @@ const insertResult = async (event_key: string) => {
                         }
                     }
                 }
-                // if (!fighterBlueFound || !fighterRedFound) {
-                //     console.log("One of the fighters was not found. Marking fight as no contest.");
-                //     fightCardData.result = { noContest: {} };
-                //     fightCardData.winner = null;
-                // }
-
 
                 const accounts = {
                     creator: admin_account.publicKey,
