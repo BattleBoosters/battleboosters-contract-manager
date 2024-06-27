@@ -1,5 +1,5 @@
 import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
-import anchor from "@coral-xyz/anchor";
+import * as anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
 import {RankReward, TournamentType} from "../interfaces/interfaces";
 import connectToDatabase from '../utils/mongodb.js';

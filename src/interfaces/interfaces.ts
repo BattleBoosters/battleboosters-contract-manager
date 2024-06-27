@@ -1,6 +1,6 @@
 
 // Specific interfaces for each tournament type
-import anchor from "@coral-xyz/anchor";
+import * as anchor from "@coral-xyz/anchor";
 
 interface PrelimsType {
     prelims: {}; // Could add specific properties for prelims later

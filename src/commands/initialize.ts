@@ -1,6 +1,6 @@
 import {RankReward, TournamentType, Env, FighterRarityType, BoosterRarityType} from "../interfaces/interfaces";
 import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
-import anchor from "@coral-xyz/anchor";
+import * as anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
 
 

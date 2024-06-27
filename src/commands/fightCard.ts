@@ -1,17 +1,17 @@
 import {getProgram, initAccounts, loadWallet} from "../utils/connection.js";
-import anchor from "@coral-xyz/anchor";
+import * as anchor from "@coral-xyz/anchor";
 import {Battleboosters} from "../battleboosters";
 import {RankReward, TournamentType, Stat, FightStatus} from "../interfaces/interfaces";
 import connectToDatabase from '../utils/mongodb.js';
 import axios from "axios";
 
 import Event from '../models/Event.js';
-import {Transaction} from "@solana/web3.js";
+import {PublicKey, Transaction} from "@solana/web3.js";
 
 const insertResult = async (event_key: string) => {
 
     const wallet = loadWallet();
-    const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
+    const programId = new PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
     const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
     const {
         admin_account,
@@ -23,6 +23,9 @@ const insertResult = async (event_key: string) => {
         // @ts-ignore
         const schedules = await axios.get(process.env.UFC_CALENDAR);
         const scheduleData = schedules.data;
+
+        console.log("anchor")
+        console.log(new anchor.BN(0))
 
         // const targetFightCardPubkey = "your_fight_card_pubkey";
         //
@@ -55,8 +58,8 @@ const insertResult = async (event_key: string) => {
         if (existingEvent && targetEvent){
             const instructions: any[] = []; // Array to store all instructions
             const batchSize = 3; // Maximum instructions per transaction
-            let event_account = new anchor.web3.PublicKey(event_key)
-            let fight_card_account: anchor.web3.PublicKey | undefined = undefined
+            let event_account = new PublicKey(event_key)
+            let fight_card_account: PublicKey | undefined = undefined
 
             //@ts-ignore
             const fightCardIDs = new Set(targetEventObject.fightCards.map(fc => fc.id));
@@ -106,7 +109,7 @@ const insertResult = async (event_key: string) => {
                         creator: admin_account.publicKey,
                         program: program_pda,
                         event: event_account,
-                        fightCard: new anchor.web3.PublicKey(fightCard.pubkey), // Make sure this is defined or fetched correctly
+                        fightCard: new PublicKey(fightCard.pubkey), // Make sure this is defined or fetched correctly
                         systemProgram: anchor.web3.SystemProgram.programId,
                     }
                     // Create the instruction to update the fight card
@@ -294,7 +297,7 @@ const insertResult = async (event_key: string) => {
 
                         }
                         matchingFightCard.result = fightResult
-                        fight_card_account = new anchor.web3.PublicKey(matchingFightCard.pubkey)
+                        fight_card_account = new PublicKey(matchingFightCard.pubkey)
 
                     } else {
                         console.error("Fight card not found for athlete:", athleteData.shortName);
