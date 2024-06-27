@@ -166,7 +166,7 @@ const insertResult = async (event_key: string) => {
                     fighterRed: {},
                     fightDuration: new anchor.BN(0),
                     result: {},
-                    winner: {},
+                    winner: {} || null,
                     nonce: 0
                 };
 
@@ -207,6 +207,7 @@ const insertResult = async (event_key: string) => {
                     return
                 }
 
+                let markAsNoContest = false;
                 // @ts-ignore
                 await Promise.all(fight.competitors.map(async fighter => {
 
@@ -295,14 +296,40 @@ const insertResult = async (event_key: string) => {
                                 ...fighterStats
                             }
 
+
                         }
+
                         matchingFightCard.result = fightResult
                         fight_card_account = new PublicKey(matchingFightCard.pubkey)
 
                     } else {
                         console.error("Fight card not found for athlete:", athleteData.shortName);
+                        markAsNoContest = true;
                     }
                 }))
+
+
+                if (markAsNoContest) {
+                    fightCardData.result = { noContest: {} };
+                    fightCardData.winner = null;
+                    if (fight_card_account) {
+                        //@ts-ignore
+                        const matchingFightCard = existingEvent.events.flatMap(event => event.fightCards).find(fc =>
+                            fc.pubkey === fight_card_account?.toString()
+                        );
+                        if (matchingFightCard) {
+                            matchingFightCard.result = 'no contest';
+                            matchingFightCard.fighterBlue.winner = false;
+                            matchingFightCard.fighterRed.winner = false;
+                        }
+                    }
+                }
+                // if (!fighterBlueFound || !fighterRedFound) {
+                //     console.log("One of the fighters was not found. Marking fight as no contest.");
+                //     fightCardData.result = { noContest: {} };
+                //     fightCardData.winner = null;
+                // }
+
 
                 const accounts = {
                     creator: admin_account.publicKey,
