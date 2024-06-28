@@ -29,6 +29,7 @@ const pointsCalculator = async (eventKey: string) => {
         const batchSize = 3; // Maximum instructions per transaction
 
         let fightCardPdas = []
+        let refundFightCardPdas = []
         //@ts-ignore
         let gameAssetAddresses = []; // Array to store game asset addresses
 
@@ -45,7 +46,13 @@ const pointsCalculator = async (eventKey: string) => {
                     program.programId
                 );
             const fight_card_data = await program.account.fightCardData.fetch(fight_card_account);
-            if (fight_card_data.winner){
+
+            // Can i do this and add the fight card for a refund ?
+            if (fight_card_data.result && fight_card_data.result.noContest){
+                refundFightCardPdas.push(fight_card_account)
+            }
+
+            if (fight_card_data.winner && fight_card_data.result && !fight_card_data.result.noContest){
                 fightCardPdas.push(fight_card_account)
             }
 
@@ -155,9 +162,83 @@ const pointsCalculator = async (eventKey: string) => {
                         console.error(`No fight card link found for ${fightCardPda.toString()}`);
                     }
                 });
+                const refundPromises = refundFightCardPdas.map(async fightCardPda => {
+                    const [fight_card_link_account] = anchor.web3.PublicKey.findProgramAddressSync(
+                        [
+                            Buffer.from('BattleBoosters'), Buffer.from('fightCard'),
+                            event_account.toBuffer(), fightCardPda.toBuffer(), rank_data.playerAccount.toBuffer()
+                        ],
+                        program.programId
+                    );
+                    try {
+                        const fight_card_link_data = await program.account.fightCardLinkData.fetch(fight_card_link_account);
+
+                        const [player_account_pda, player_account_bump] =
+                            anchor.web3.PublicKey.findProgramAddressSync(
+                                [
+                                    Buffer.from('BattleBoosters'),
+                                    Buffer.from('player'),
+                                    rank_data.playerAccount.toBuffer(),
+                                    //admin_account.publicKey.toBuffer(),
+                                ],
+                                program.programId
+                            );
+
+                        const player_account_data = await program.account.playerData.fetch(player_account_pda)
+
+                        const [points_mintable_game_asset_link_pda] =
+                            anchor.web3.PublicKey.findProgramAddressSync(
+                                [
+                                    Buffer.from('BattleBoosters'),
+                                    Buffer.from('mintableGameAsset'),
+                                    Buffer.from(player_account_data.playerGameAssetLinkNonce.toArray('le', 8)),
+                                    rank_data.playerAccount.toBuffer(),
+                                ],
+                                program.programId
+                            );
+                        const [shield_mintable_game_asset_link_pda] =
+                            anchor.web3.PublicKey.findProgramAddressSync(
+                                [
+                                    Buffer.from('BattleBoosters'),
+                                    Buffer.from('mintableGameAsset'),
+                                    Buffer.from(player_account_data.playerGameAssetLinkNonce.add(new anchor.BN(1)).toArray('le', 8)),
+                                    rank_data.playerAccount.toBuffer(),
+                                ],
+                                program.programId
+                            );
+
+                        let accounts = {
+                            signer: wallet.publicKey,
+                            playerAccount: player_account_pda,
+                            event: event_account,
+                            fightCard: fightCardPda,
+                            fightCardLink: fight_card_link_account,
+                            fighterAsset: fight_card_link_data.fighterUsed,
+                            pointsBoosterAsset: fight_card_link_data.pointsBoosterUsed ? fight_card_link_data.pointsBoosterUsed : null,
+                            shieldBoosterAsset: fight_card_link_data.shieldBoosterUsed ? fight_card_link_data.shieldBoosterUsed : null ,
+                            pointsBoosterLink: fight_card_link_data.pointsBoosterUsed ? points_mintable_game_asset_link_pda: null,
+                            shieldBoosterLink: fight_card_link_data.shieldBoosterUsed ? shield_mintable_game_asset_link_pda: null
+                        }
+                        console.log("Refunding mintable game asset with accounts:", accounts);
+                        let refundInstruction = await program.methods.refundMintableGameAsset(
+                            player_account_data.playerGameAssetLinkNonce,
+                            player_account_data.playerGameAssetLinkNonce.add(new anchor.BN(1)),
+                            rank_data.playerAccount
+                        )
+                            .accounts(accounts)
+                            .instruction()
+                        instructions.push(refundInstruction)
+
+                    }catch (e) {
+                        console.error(e);
+                    }
+
+                });
                 await Promise.all(rankPromises);
+                await Promise.all(refundPromises)
             }
         }));
+
 
         console.log(`${Math.ceil(instructions.length / batchSize)} tx(s) will be created on-chain to handle tx limit.`)
         // Create batches of instructions
