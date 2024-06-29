@@ -14,9 +14,8 @@ import {createEvent, updateEvent} from "./commands/event.js";
 import {insertResult} from "./commands/fightCard.js";
 import {pointsCalculator} from "./commands/pointsCalculator.js";
 import {ranksCalculator} from "./commands/ranksCalculator.js";
-import {forceUpdateProgram, initializeProgram, initializeRarity} from "./commands/initialize.js";
+import {forceUpdateProgram, initializeProgram, initializeRarity, updateRarity} from "./commands/initialize.js";
 import {createFighterBase} from "./commands/fighterBase.js";
-import path from 'path';
 
 const fighterTypeMapping: FighterTypeMapping = {
     0: 'Boxing',
@@ -96,6 +95,48 @@ program
         }
 
         await initializeRarity(probsTier1Object, probsTier2Object, probsTier3Object, fighter_rarity, booster_shield_rarity, booster_points_rarity)
+    })
+
+program
+    .command('update-rarity')
+    .argument('<probs_tier_1>', "Probability tier 1 from common to legendary [10,20,30,20,20]")
+    .argument('<probs_tier_2>', "Probability tier 2 from common to legendary [10,20,30,20,20]")
+    .argument('<probs_tier_3>', "Probability tier 3 from common to legendary [10,20,30,20,20]")
+    .option('--fighter-rarity <path>', 'Path to fighter rarity', '../src/fighters-rarity.json')
+    .option('--booster-shield-rarity <path>', 'Path to booster shield rarity', '../src/booster-shield-rarity.json')
+    .option('--booster-points-rarity <path>', 'Path to booster points rarity', '../src/booster-points-rarity.json')
+    .action(async (probsTier1, probsTier2, probsTier3, options) =>{
+
+        const readRarityFile = (path: string): any[] => {
+            try {
+                const configFile = fs.readFileSync(path, 'utf-8'); // Specify encoding
+                return JSON.parse(configFile);
+            } catch (error) {
+                console.error(`Error reading or parsing file at ${path}:`, error);
+                return [];
+            }
+        };
+        const fighter_rarity: FighterRarityType[] = options.fighterRarity ? readRarityFile(options.fighterRarity) : [];
+        const booster_shield_rarity: BoosterRarityType[] = options.boosterShieldRarity ? readRarityFile(options.boosterShieldRarity) : [];
+        const booster_points_rarity: BoosterRarityType[] = options.boosterPointsRarity ? readRarityFile(options.boosterPointsRarity) : [];
+
+        const isSumEqualTo100 = (arr: number[]): boolean => arr.reduce((acc, curr) => acc + curr, 0) === 100;
+        const probsTier1Object = JSON.parse(probsTier1);
+        const probsTier2Object = JSON.parse(probsTier2);
+        const probsTier3Object = JSON.parse(probsTier3);
+
+
+        if (!isSumEqualTo100(probsTier1Object)){
+            throw new Error('Probability tier 1 does not sum 100%');
+        }
+        if (!isSumEqualTo100(probsTier2Object)){
+            throw new Error('Probability tier 2 does not sum 100%');
+        }
+        if (!isSumEqualTo100(probsTier3Object)){
+            throw new Error('Probability tier 3 does not sum 100%');
+        }
+
+        await updateRarity(probsTier1Object, probsTier2Object, probsTier3Object, fighter_rarity, booster_shield_rarity, booster_points_rarity)
     })
 
 program

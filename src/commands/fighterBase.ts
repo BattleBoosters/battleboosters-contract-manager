@@ -43,5 +43,8 @@ const createFighterBase = async (fighterIndex: number, metrics: Metrics, fighter
         console.error("Error:", e);
     }
 }
+/*
+    TODO: Update fighter base
+ */
 
 export { createFighterBase }

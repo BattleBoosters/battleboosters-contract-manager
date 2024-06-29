@@ -81,6 +81,44 @@ const initializeRarity = async (probs_tier_1: [], probs_tier_2: [], probs_tier_3
     }
 }
 
+const updateRarity = async (probs_tier_1: [], probs_tier_2: [], probs_tier_3: [], fighter_rarity: FighterRarityType[], booster_shield_rarity: BoosterRarityType[], booster_points_rarity: BoosterRarityType[], ) => {
+    const wallet = loadWallet();
+    const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
+    const program = await getProgram(wallet, programId) as anchor.Program<Battleboosters>;
+    const {
+        admin_account,
+        rarity_pda
+    } = initAccounts(program);
+
+    try {
+        const accounts = {
+            creator: admin_account.publicKey,
+            rarity: rarity_pda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        }
+
+        const tx = await program.methods
+            .updateRarity(
+                fighter_rarity,
+                booster_shield_rarity,
+                booster_points_rarity,
+                [
+                    { tier1: [Buffer.from(probs_tier_1)] }, // MainCard
+                    { tier2: [Buffer.from(probs_tier_2)] }, // Prelims
+                    { tier3: [Buffer.from(probs_tier_3)] }, // Early Prelims
+                ]
+            )
+            .accounts(accounts)
+            .signers([admin_account]) // Include new_account as a signer
+            .rpc();
+
+        console.log("Rarity updated: ", tx)
+    }catch (e){
+        console.log(e)
+    }
+}
+
+
 const forceUpdateProgram = async () => {
     const wallet = loadWallet();
     const programId = new anchor.web3.PublicKey(process.env.NEXT_PUBLIC_BATTLEBOOSTERS_PROGRAM_ID!);
@@ -110,4 +148,4 @@ const forceUpdateProgram = async () => {
     }
 }
 
-export { initializeProgram, initializeRarity, forceUpdateProgram }
+export { initializeProgram, initializeRarity, forceUpdateProgram, updateRarity }

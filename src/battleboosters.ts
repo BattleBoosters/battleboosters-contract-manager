@@ -3708,8 +3708,8 @@ export type Battleboosters = {
                 "path": "fightCard"
               },
               {
-                "kind": "account",
-                "path": "signer"
+                "kind": "arg",
+                "path": "playerPubkey"
               }
             ]
           }
@@ -4549,6 +4549,148 @@ export type Battleboosters = {
         {
           "name": "playerPubkey",
           "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "updateRarity",
+      "discriminator": [
+        147,
+        186,
+        251,
+        93,
+        110,
+        169,
+        167,
+        155
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "program",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  66,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101,
+                  66,
+                  111,
+                  111,
+                  115,
+                  116,
+                  101,
+                  114,
+                  115
+                ]
+              },
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  103,
+                  114,
+                  97,
+                  109
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rarity",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  66,
+                  97,
+                  116,
+                  116,
+                  108,
+                  101,
+                  66,
+                  111,
+                  111,
+                  115,
+                  116,
+                  101,
+                  114,
+                  115
+                ]
+              },
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "fighter",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "rarityFighter"
+              }
+            }
+          }
+        },
+        {
+          "name": "shieldBooster",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "rarityBooster"
+              }
+            }
+          }
+        },
+        {
+          "name": "pointsBooster",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "rarityBooster"
+              }
+            }
+          }
+        },
+        {
+          "name": "probabilityTiers",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "tierProbabilities"
+              }
+            }
+          }
         }
       ]
     }
